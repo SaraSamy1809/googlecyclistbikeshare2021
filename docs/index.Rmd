@@ -1,0 +1,4561 @@
+---
+title: 'Google Career Certificate: Cyclist bike share 2021'
+author: "Sara Samy"
+date: "2023-04-13"
+output: html_document
+subtitle: Study the behaviour of the cyclist as per as usertype for year 2021
+resource_files:
+- Casestudy1.R
+- Casestudy1.1.R
+- Casestudy1.2.R
+- cyclist2021analysis report.xlsx
+- clean_year_2021_df.csv
+---
+
+```{r setup, include=FALSE, eval = FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
+```
+
+## Cyclist-Bike Share User type Behavior (Casual Vs Member)
+
+### Introduction
+
+Cyclist-Bike Share is an application that features more than 5,800 bicycles and 600 docking stations. Cyclistic sets itself apart by also offering reclining bikes, hand tricycles, and cargo bikes, making bike-share more inclusive to people with disabilities and riders who can't use a standard two-wheeled bike. The majority of riders opt for traditional bikes; about 8% of riders use the assisting options. Cyclistic users are more likely to ride for leisure, but about 30% use them to commute to work each day.
+
+### Objective
+
+Checking if the annual subscriptions would be the main cause of increasing the profit and the wide-spreading of the company in the future.
+
+### Business Task
+
+Study the behavior of subscribers and non-subscribers(Members Vs Casual). The common and different insights done by the users. Also, the attributes that can contribute on increasing the conversion rate of casuals to member users.
+
+### Stakeholders
+
+Marketing director, Analytics team and Executive team are the stakeholders.
+
+### Deliverable
+
+Prepare, clean, and analyze the data recording the users' trips history in 2021.
+
+## Preparing the data
+
+The data of year 2021 was divided into twelve separate sheets as per as months of the year. These were merged into one sheet. The empty cells' records were dropped after checking the alphabetic case (Lower and Upper)
+
+The data was stored on Google drive and the computer as well. The data is considered fair as it is collected from records made from the trips' details requested by the users of both types.
+
+The tool used in this process is **RStudio/2023.03.0+386**.
+
+### Steps of Prepare Process
+
+#### 1-Libraries
+
+These libraries are used for the whole project and not just this process
+
+```{r ,eval=FALSE}
+#uploading libraries and tools
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(skimr)
+library(readr)
+library(lubridate)
+library(rmarkdown)
+library(readxl)
+library(writexl)
+library(geosphere)
+library(data.table)
+```
+
+#### 2-Read the monthly data
+
+```{r ,eval=FALSE}
+jan_data<- read_csv("1_2021.csv")
+feb_data<- read_csv("2_2021.csv")
+march_data<- read_csv("3_2021.csv")
+april_data<- read_csv("4_2021.csv")
+may_data<- read_csv("5_2021.csv")
+june_data<- read_csv("6_2021.csv")
+july_data<- read_csv("7_2021.csv")
+aug_data<- read_csv("8_2021.csv")
+sep_data<- read_csv("9_2021.csv")
+oct_data<- read_csv("10_2021.csv")
+nov_data<- read_csv("11_2021.csv")
+dec_data<- read_csv("12_2021.csv")
+```
+
+#### 3-Change the column names in all the data worksheets to unify the header
+
+```{r,eval=FALSE}
+#January data preparation - column names
+colnames(jan_data)
+jan_2021 <- rename(jan_data,
+                   trip_id = "ride_id",
+                   bikeid = "rideable_type",
+                   starttime = "started_at",
+                   stoptime = "ended_at",
+                   from_station_name = "start_station_name",
+                   from_station_id ="start_station_id",
+                   to_station_name = "end_station_name",
+                   to_station_id = "end_station_id",
+                   usertype = "member_casual")
+
+#February data preparation - column names
+colnames(feb_data)
+feb_2021 <- rename(feb_data,
+                   trip_id = "ride_id",
+                   bikeid = "rideable_type",
+                   starttime = "started_at",
+                   stoptime = "ended_at",
+                   from_station_name = "start_station_name",
+                   from_station_id ="start_station_id",
+                   to_station_name = "end_station_name",
+                   to_station_id = "end_station_id",
+                   usertype = "member_casual")
+#March data preparation - column names
+colnames(march_data)
+march_2021 <- rename(march_data,
+                   trip_id = "ride_id",
+                   bikeid = "rideable_type",
+                   starttime = "started_at",
+                   stoptime = "ended_at",
+                   from_station_name = "start_station_name",
+                   from_station_id ="start_station_id",
+                   to_station_name = "end_station_name",
+                   to_station_id = "end_station_id",
+                   usertype = "member_casual")
+#April data preparation - column names
+colnames(april_data)
+april_2021 <- rename(april_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#May data preparation - column names
+colnames(may_data)
+may_2021 <- rename(may_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#June data preparation - column names
+colnames(june_data)
+june_2021 <- rename(june_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#July data preparation - column names
+colnames(july_data)
+july_2021 <- rename(july_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+
+#August data preparation - column names
+colnames(aug_data)
+aug_2021 <- rename(aug_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#September data preparation - column names
+colnames(sep_data)
+sep_2021 <- rename(sep_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#October data preparation - column names
+colnames(oct_data)
+oct_2021 <- rename(oct_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#November data preparation - column names
+colnames(nov_data)
+nov_2021 <- rename(nov_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+#December data preparation - column names
+colnames(dec_data)
+dec_2021 <- rename(dec_data,
+                     trip_id = "ride_id",
+                     bikeid = "rideable_type",
+                     starttime = "started_at",
+                     stoptime = "ended_at",
+                     from_station_name = "start_station_name",
+                     from_station_id ="start_station_id",
+                     to_station_name = "end_station_name",
+                     to_station_id = "end_station_id",
+                     usertype = "member_casual")
+
+#Check on the colnames of all the 12 sheets
+colnames(jan_2021)
+colnames(feb_2021)
+colnames(march_2021)
+colnames(april_2021)
+colnames(may_2021)
+colnames(june_2021)
+colnames(july_2021)
+colnames(aug_2021)
+colnames(sep_2021)
+colnames(oct_2021)
+colnames(nov_2021)
+colnames(dec_2021)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+#Check on the colnames of all the 12 sheets
+
+> colnames(jan_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(feb_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(march_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(april_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(may_2021)
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(june_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(july_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(aug_2021)
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(sep_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(oct_2021)
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(nov_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+> colnames(dec_2021) 
+[1] "trip_id" "bikeid" "starttime"
+[4] "stoptime" "from_station_name" "from_station_id"
+[7] "to_station_name" "to_station_id" "start_lat"
+[10] "start_lng" "end_lat" "end_lng"
+[13] "usertype"
+
+```
+
+#### 4-Merge into one data-set
+
+```{r ,eval=FALSE}
+#Create a data set of trips for 2021
+year_2021_df <- bind_rows(jan_2021, feb_2021,march_2021,april_2021,may_2021,
+                          june_2021,july_2021,aug_2021,sep_2021,oct_2021,
+                          nov_2021,dec_2021)
+```
+
+#### 5-Drop the missing values
+
+```{r ,eval=FALSE}
+year_2021_df_1 <- drop_na(year_2021_df)
+```
+
+#### 6-Check the cases of the text
+
+```{r,eval=FALSE}
+#check that the text is all the same
+year_2021_df_1$trip_id <- tolower(year_2021_df_1$trip_id)
+year_2021_df_1$bikeid<-tolower(year_2021_df_1$bikeid)
+year_2021_df_1$from_station_name<-tolower(year_2021_df_1$from_station_name)
+year_2021_df_1$from_station_id<-tolower(year_2021_df_1$from_station_id)
+year_2021_df_1$to_station_name<-tolower(year_2021_df_1$to_station_name)
+year_2021_df_1$to_station_id<-tolower(year_2021_df_1$to_station_id)
+year_2021_df_1$usertype<-tolower(year_2021_df_1$usertype)
+```
+
+#### 7-Remove Duplicates
+
+```{r,eval=FALSE}
+#Remove duplicates
+year_2021_df_2 <- distinct(year_2021_df_1)
+```
+
+## Process the data-set
+
+In this process, some columns like time and stations were split and transformed. Also, a calculation for time duration in minutes and the distance in meters took place.Columns like order day,timing, month, season, year quarters were added.The tool used here is also **RStudio/2023.03.0+386**.
+
+### Steps of Processing data set Process
+
+#### 1-Change the Start_time and Stop_time data format
+
+```{r,eval=FALSE}
+#Change the start_time and stop_time
+year_2021_df_3 <- mutate(year_2021_df_2,
+      start_datetime = as.character.Date(year_2021_df_2$starttime),
+      stop_datetime = as.character.Date(year_2021_df_2$stoptime))
+```
+
+#### 2-Split the Start and stop times
+
+##### Start Time
+
+```{r,eval=FALSE}
+#Start datetime
+year_2021_df_4 <- separate(year_2021_df_3,start_datetime,into = c('start_day','start_time'), sep = " ")
+```
+
+##### Stop Time
+
+```{r,eval=FALSE}
+#Stop datetime
+year_2021_df_5 <- separate(year_2021_df_4,stop_datetime,into = c('stop_day','stop_time'), sep = " ")
+```
+
+#### 3-Calculate the time duration
+
+```{r,eval=FALSE}
+year_2021_df_6 <- mutate(year_2021_df_5, 
+        time_duration = as.numeric(difftime(stoptime, starttime, units = "mins")))
+```
+
+#### 4-Change the start day to weekdays
+
+##### Start day
+
+```{r,eval=FALSE}
+#Change the start day to weekdays
+year_2021_df_6$day_of_order<- weekdays(strptime(year_2021_df_6$start_day, format = "%Y-%m-%d"))
+```
+
+#### 5-Calculate the distance between start and stop points using Lat-LNG, start and stop hours columns, and Months in English words
+
+##### Start and Stop Hours
+
+```{r, eval=FALSE}
+#separation of the hour only
+year_2021_df_7 <- year_2021_df_6 %>%
+  rowwise%>%
+  mutate(start_hour = format(as.POSIXct(starttime), format = "%H"), stop_hour =format(as.POSIXct(stoptime), format = "%H")) 
+
+```
+
+##### Distance Calculation
+
+```{r, eval=FALSE}
+#Calculation of the distance in meters using lat-LNG
+year_2021_df_7 <- year_2021_df_7 %>%
+  rowwise %>% 
+  #get the distance between the start and stop in meters
+  mutate(distance =distm(x=c(start_lat,start_lng),y=c(end_lat, end_lng), fun = distHaversine)) 
+```
+
+##### Months in Words
+
+```{r,eval=FALSE}
+#Months
+year_2021_df_7$month <-months(strptime(year_2021_df_7$start_day, format = "%Y-%m-%d"))
+```
+
+#### 6- Round the Time duration and distance and Correcting some negative values of distance
+
+##### Round the time duration
+
+```{r,eval=FALSE}
+#round the time in min
+year_2021_df_7$time_duration <- round(year_2021_df_7$time_duration,0)
+```
+
+##### Change the data type of the distance
+
+```{r,eval=FALSE}
+#Change the vector to numeric
+year_2021_df_7$distance <-as.numeric(year_2021_df_7$distance)
+```
+
+##### Round the distance
+
+```{r,eval=FALSE}
+#round the distance in meters
+year_2021_df_7$distance <- round(as.numeric(year_2021_df_7$distance),2)
+```
+
+##### Remove the Negative values of Time duration
+
+```{r,eval=FALSE}
+#there are some distance values with negative time duration, which is a wrong entry
+year_2021_df_7$time_duration <- abs(year_2021_df_7$time_duration)
+```
+
+##### Remove the negative values of Distance
+
+```{r,eval=FALSE}
+year_2021_df_7$distance <- abs(as.numeric(year_2021_df_7$distance))
+```
+
+#### 7- Remove zero-valued records for time duration or distance
+
+```{r,eval=FALSE}
+year_2021_df_7 <-year_2021_df_7 %>% 
+#remove any zero time_duration and distance
+  filter(time_duration > 0) %>%
+  filter(round(distance,0) >0) 
+```
+
+#### 8- Adding a Start_timing and Stop_timing(Morning, Afternoon, Evening, Night) for start and stop hours
+
+##### Start_Timing
+
+```{r,eval=FALSE}
+#creating an empty column
+year_2021_df_7$start_timing = NA
+```
+
+```{r,eval=FALSE}
+# Setting the start_timing to values
+year_2021_df_7$start_timing<- case_when(year_2021_df_7$start_hour =="00" ~ "Night",
+                                    year_2021_df_7$ start_hour =="01" ~ "Night",
+                                    year_2021_df_7$start_hour =="02" ~ "Night",
+                                    year_2021_df_7$start_hour =="03" ~ "Night",
+                                    year_2021_df_7$start_hour =="04" ~ "Night",
+                                    year_2021_df_7$start_hour =="05" ~ "Morning",
+                                    year_2021_df_7$start_hour =="06" ~ "Morning",
+                                    year_2021_df_7$start_hour =="07" ~ "Morning",
+                                    year_2021_df_7$start_hour =="08" ~ "Morning",
+                                    year_2021_df_7$start_hour =="09" ~ "Morning",
+                                    year_2021_df_7$start_hour =="10" ~ "Morning",
+                                    year_2021_df_7$start_hour =="11" ~ "Morning",
+                                    year_2021_df_7$start_hour =="12" ~ "Afternoon",
+                                    year_2021_df_7$start_hour =="13" ~ "Afternoon",
+                                    year_2021_df_7$start_hour =="14" ~ "Afternoon",
+                                    year_2021_df_7$start_hour =="15" ~ "Afternoon",
+                                    year_2021_df_7$start_hour =="16" ~ "Afternoon",
+                                    year_2021_df_7$start_hour =="17" ~ "Evening",
+                                    year_2021_df_7$start_hour =="18" ~ "Evening",
+                                    year_2021_df_7$start_hour =="19" ~ "Evening",
+                                    year_2021_df_7$start_hour =="20" ~ "Evening",
+                                    year_2021_df_7$start_hour =="21" ~ "Night",
+                                    year_2021_df_7$start_hour =="22" ~ "Night",
+                                    year_2021_df_7$start_hour =="23" ~ "Night")
+```
+
+##### Stop_Timing
+
+```{r, eval=FALSE}
+#creating an empty column
+year_2021_df_7$stop_timing = NA
+```
+
+```{r,eval=FALSE}
+# Setting the stop_timing to values
+year_2021_df_7$stop_timing<-  case_when(year_2021_df_7$stop_hour =="00" ~ "Night",
+                                    year_2021_df_7$ stop_hour =="01" ~ "Night",
+                                    year_2021_df_7$stop_hour =="02" ~ "Night",
+                                    year_2021_df_7$stop_hour =="03" ~ "Night",
+                                    year_2021_df_7$stop_hour =="04" ~ "Night",
+                                    year_2021_df_7$stop_hour =="05" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="06" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="07" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="08" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="09" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="10" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="11" ~ "Morning",
+                                    year_2021_df_7$stop_hour =="12" ~ "Afternoon",
+                                    year_2021_df_7$stop_hour =="13" ~ "Afternoon",
+                                    year_2021_df_7$stop_hour =="14" ~ "Afternoon",
+                                    year_2021_df_7$stop_hour =="15" ~ "Afternoon",
+                                    year_2021_df_7$stop_hour =="16" ~ "Afternoon",
+                                    year_2021_df_7$stop_hour =="17" ~ "Evening",
+                                    year_2021_df_7$stop_hour =="18" ~ "Evening",
+                                    year_2021_df_7$stop_hour =="19" ~ "Evening",
+                                    year_2021_df_7$stop_hour =="20" ~ "Evening",
+                                    year_2021_df_7$stop_hour =="21" ~ "Night",
+                                    year_2021_df_7$stop_hour =="22" ~ "Night",
+                                    year_2021_df_7$stop_hour =="23" ~ "Night")
+```
+
+#### 8- Adding season and year quarter columns
+
+##### Season
+
+```{r, eval=FALSE}
+#creating an empty column
+year_2021_df_7$season =NA
+```
+
+```{r,eval=FALSE}
+# Setting season values
+year_2021_df_7$season<- case_when(year_2021_df_7$month=="January"~"Winter",
+                                  year_2021_df_7$month=="February"~"Winter",
+                                  year_2021_df_7$month=="March"~"Spring",
+                                  year_2021_df_7$month=="April"~"Spring",
+                                  year_2021_df_7$month=="May"~"Spring",
+                                  year_2021_df_7$month=="June"~"Summer",
+                                  year_2021_df_7$month=="July"~"Summer",
+                                  year_2021_df_7$month=="August"~"Summer",
+                                  year_2021_df_7$month=="September"~"Autumn",
+                                  year_2021_df_7$month=="October"~"Autumn",
+                                  year_2021_df_7$month=="November"~"Autumn",
+                                  year_2021_df_7$month=="December"~"Winter")
+```
+
+##### Year_quarters
+
+```{r, eval=FALSE}
+#creating an empty column
+year_2021_df_7$year_quarter = NA
+```
+
+```{r,eval=FALSE}
+#Setting year quarters values
+year_2021_df_7$year_quarter<-  case_when(year_2021_df_7$month=="January"~"Q1",
+                            year_2021_df_7$month=="February"~"Q1",
+                            year_2021_df_7$month=="March"~"Q1",
+                            year_2021_df_7$month=="April"~"Q2",
+                            year_2021_df_7$month=="May"~"Q2",
+                            year_2021_df_7$month=="June"~"Q2",
+                            year_2021_df_7$month=="July"~"Q3",
+                            year_2021_df_7$month=="August"~"Q3",
+                            year_2021_df_7$month=="September"~"Q3",
+                            year_2021_df_7$month=="October"~"Q4",
+                            year_2021_df_7$month=="November"~"Q4",
+                            year_2021_df_7$month=="December"~"Q4")
+```
+
+#### View the data-set
+
+```{r,eval=FALSE}
+
+str(year_2021_df_7)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+rowws_df [4,300,941 × 27] (S3: rowwise_df/tbl_df/tbl/data.frame)
+ $ trip_id          : chr [1:4300941] "b9f73448dfbe0d45" "457c7f4b5d3da135" "57c750326f9fdabe" "4d518c65e338d070" ...
+ $ bikeid           : chr [1:4300941] "classic_bike" "electric_bike" "electric_bike" "electric_bike" ...
+ $ starttime        : POSIXct[1:4300941], format: "2021-01-24 19:15:38" "2021-01-23 12:57:38" "2021-01-09 15:28:04" "2021-01-09 15:28:57" ...
+ $ stoptime         : POSIXct[1:4300941], format: "2021-01-24 19:22:51" "2021-01-23 13:02:10" "2021-01-09 15:37:51" "2021-01-09 15:37:54" ...
+ $ from_station_name: chr [1:4300941] "california ave & cortez st" "california ave & cortez st" "california ave & cortez st" "california ave & cortez st" ...
+ $ from_station_id  : chr [1:4300941] "17660" "17660" "17660" "17660" ...
+ $ to_station_name  : chr [1:4300941] "wood st & augusta blvd" "california ave & north ave" "wood st & augusta blvd" "wood st & augusta blvd" ...
+ $ to_station_id    : chr [1:4300941] "657" "13258" "657" "657" ...
+ $ start_lat        : num [1:4300941] 41.9 41.9 41.9 41.9 41.9 ...
+ $ start_lng        : num [1:4300941] -87.7 -87.7 -87.7 -87.7 -87.7 ...
+ $ end_lat          : num [1:4300941] 41.9 41.9 41.9 41.9 41.9 ...
+ $ end_lng          : num [1:4300941] -87.7 -87.7 -87.7 -87.7 -87.7 ...
+ $ usertype         : chr [1:4300941] "member" "member" "casual" "casual" ...
+ $ start_day        : chr [1:4300941] "2021-01-24" "2021-01-23" "2021-01-09" "2021-01-09" ...
+ $ start_time       : chr [1:4300941] "19:15:38" "12:57:38" "15:28:04" "15:28:57" ...
+ $ stop_day         : chr [1:4300941] "2021-01-24" "2021-01-23" "2021-01-09" "2021-01-09" ...
+ $ stop_time        : chr [1:4300941] "19:22:51" "13:02:10" "15:37:51" "15:37:54" ...
+ $ time_duration    : num [1:4300941] 7 5 10 9 10 21 6 4 18 17 ...
+ $ day_of_order     : chr [1:4300941] "Sunday" "Saturday" "Saturday" "Saturday" ...
+ $ start_hour       : chr [1:4300941] "19" "12" "15" "15" ...
+ $ stop_hour        : chr [1:4300941] "19" "13" "15" "15" ...
+ $ distance         : num [1:4300941] 2727.8 48.2 2728.5 2731.7 2727.8 ...
+ $ month            : chr [1:4300941] "January" "January" "January" "January" ...
+ $ start_timing     : chr [1:4300941] "Evening" "Afternoon" "Afternoon" "Afternoon" ...
+ $ stop_timing      : chr [1:4300941] "Evening" "Afternoon" "Afternoon" "Afternoon" ...
+ $ season           : chr [1:4300941] "Winter" "Winter" "Winter" "Winter" ...
+ $ year_quarter     : chr [1:4300941] "Q1" "Q1" "Q1" "Q1" ...
+ - attr(*, "groups")= tibble [4,300,941 × 1] (S3: tbl_df/tbl/data.frame)
+  ..$ .rows: list<int> [1:4300941] 
+  .. ..$ : int 1
+  .. ..$ : int 2
+  .. ..$ : int 3
+  .. ..$ : int 4
+  .. ..$ : int 5
+  .. ..$ : int 6
+  .. ..$ : int 7
+  .. ..$ : int 8
+  .. ..$ : int 9
+  .. ..$ : int 10
+  .. ..$ : int 11
+  .. ..$ : int 12
+  .. ..$ : int 13
+  .. ..$ : int 14
+  .. ..$ : int 15
+  .. ..$ : int 16
+  .. ..$ : int 17
+  .. ..$ : int 18
+  .. ..$ : int 19
+  .. ..$ : int 20
+  .. ..$ : int 21
+  .. ..$ : int 22
+  .. ..$ : int 23
+  .. ..$ : int 24
+  .. ..$ : int 25
+  .. ..$ : int 26
+  .. ..$ : int 27
+  .. ..$ : int 28
+  .. ..$ : int 29
+  .. ..$ : int 30
+  .. ..$ : int 31
+  .. ..$ : int 32
+  .. ..$ : int 33
+  .. ..$ : int 34
+  .. ..$ : int 35
+  .. ..$ : int 36
+  .. ..$ : int 37
+  .. ..$ : int 38
+  .. ..$ : int 39
+  .. ..$ : int 40
+  .. ..$ : int 41
+  .. ..$ : int 42
+  .. ..$ : int 43
+  .. ..$ : int 44
+  .. ..$ : int 45
+  .. ..$ : int 46
+  .. ..$ : int 47
+  .. ..$ : int 48
+  .. ..$ : int 49
+  .. ..$ : int 50
+  .. ..$ : int 51
+  .. ..$ : int 52
+  .. ..$ : int 53
+  .. ..$ : int 54
+  .. ..$ : int 55
+  .. ..$ : int 56
+  .. ..$ : int 57
+  .. ..$ : int 58
+  .. ..$ : int 59
+  .. ..$ : int 60
+  .. ..$ : int 61
+  .. ..$ : int 62
+  .. ..$ : int 63
+  .. ..$ : int 64
+  .. ..$ : int 65
+  .. ..$ : int 66
+  .. ..$ : int 67
+  .. ..$ : int 68
+  .. ..$ : int 69
+  .. ..$ : int 70
+  .. ..$ : int 71
+  .. ..$ : int 72
+  .. ..$ : int 73
+  .. ..$ : int 74
+  .. ..$ : int 75
+  .. ..$ : int 76
+  .. ..$ : int 77
+  .. ..$ : int 78
+  .. ..$ : int 79
+  .. ..$ : int 80
+  .. ..$ : int 81
+  .. ..$ : int 82
+  .. ..$ : int 83
+  .. ..$ : int 84
+  .. ..$ : int 85
+  .. ..$ : int 86
+  .. ..$ : int 87
+  .. ..$ : int 88
+  .. ..$ : int 89
+  .. ..$ : int 90
+  .. ..$ : int 91
+  .. ..$ : int 92
+  .. ..$ : int 93
+  .. ..$ : int 94
+  .. ..$ : int 95
+  .. ..$ : int 96
+  .. ..$ : int 97
+  .. ..$ : int 98
+  .. ..$ : int 99
+  .. .. [list output truncated]
+  .. ..@ ptype: int(0) 
+```
+
+### Analysis Process
+
+In this process, the similarities and differences between the behavior of member and casual users were studied. This analysis included the number of rides done by both users in general and through different factors like through the day, week, month, season, and year quarter. Also, it studied the average time duration and distance per each user type, the most taken routes, start point and stop point. The tool used for this analysis is **RStudio/2023.03.0+386**. As for visualizations, it was **RStudio/2023.03.0+386** and **Tableau Public 2023.1**. A dashboard was also created using **Tableau Public 2023.1**. Also, a focused tabled- report on **Excel from Microsoft Professional Plus 2019**.
+
+[***A new column was created in tableau called path station, this joins the from_station and to_station together to find the most taken road.***]{.underline}
+
+#### Count of Rides Per each user_type
+
+#### Total Number of rides
+
+```{r,eval=FALSE}
+#----------------------------Total of rides--------------------
+#count the total number of trips
+  nrow(year_2021_df_7)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+[1] 4300941
+```
+
+#### Total number of rides per user type
+
+```{r,eval=FALSE}
+#count the total number of rides per each user-type
+  year_2021_df_7 %>% 
+    count(usertype)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2 × 2
+# Rowwise: 
+  usertype       n
+  <chr>      <int>
+1 casual   1855831
+2 member   2445110
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+ggplot(data = year_2021_df_7, mapping = aes(x= usertype, fill = usertype) ) + 
+  #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+  #as aes()in geom_function will be only applied here (hierarchy level)
+  geom_bar()+
+  labs(title = "Number of rides made by Casual VS Memeber", x=" User_type", y="Number of rides")+
+  theme(plot.title = element_text(hjust = 0.5))+ #centering the title
+  scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+  scale_fill_discrete(name = "User_type")+ # to change the name of the legend
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black")
+
+#ggsave("plot1-Number of rides made by Casual VS Member.png")
+
+```
+
+<div>
+
+**![Number of rides made by Casual VS Member](plot1-Number%20of%20rides%20made%20by%20Casual%20VS%20Memeber.png "Number of rides made by Casual VS Memeber"){style="border:2px solid black;"} Number of rides made by different users**
+
+</div>
+
+#### Total number of rides(bike type)
+
+```{r,eval=FALSE}
+#count the total ride by each bike type
+  year_2021_df_7 %>% 
+    count(bikeid)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 3 × 2
+# Rowwise: 
+  bikeid              n
+  <chr>           <int>
+1 classic_bike  3032803
+2 docked_bike    247001
+3 electric_bike 1021137
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+ggplot(data = year_2021_df_7, mapping = aes(x= bikeid, fill = bikeid)) + 
+  #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+  #as aes()in geom_function will be only applied here (hierarchy level)
+  geom_bar()+
+  labs(title = "Number of rides made by bike type",x=" bike type", y="Number of rides")+
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))+ #centering the title
+  scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+  scale_fill_discrete(name = "Bike_type")+ # to change the name of the legend
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black")
+
+#ggsave("plot2-Number of rides per each bike type.png")
+```
+
+<div>
+
+<div>
+
+![**Number of rides per each bike type**](plot2-Number%20of%20rides%20per%20each%20bike%20type.png "Number of rides per each bike type"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total of rides(user-type+bike)
+
+```{r,eval=FALSE}
+#----------------------------Total of rides(user-type+bike)-------------------
+#count the number of the rides for each bike type per user type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(bikeid)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 6 × 3
+# Groups:   user-type [2]
+  usertype bikeid              n
+  <chr>    <chr>           <int>
+1 casual   classic_bike  1139872
+2 casual   docked_bike    247000
+3 casual   electric_bike  468959
+4 member   classic_bike  1892931
+5 member   docked_bike         1
+6 member   electric_bike  552178
+
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+ggplot(data = year_2021_df_7, mapping = aes(x= bikeid, fill = bikeid)) + 
+  #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+  #as aes()in geom_function will be only applied here (hierarchy level)
+  geom_bar()+
+  labs(title = "Number of rides made by bike type",caption = "Casual Vs Member",x=" bike type", y="Number of rides")+
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))+ #centering the title
+  scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+  scale_fill_discrete(name = "Bike_type")+ # to change the name of the legend
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black")+
+  facet_wrap(~usertype)
+
+#ggsave("plot3-Number of rides per each bike type Casual VS Member.png")
+
+```
+
+<div>
+
+<div>
+
+![**Number of rides per each bike type Casual VS Member**](plot2-Number%20of%20rides%20per%20each%20bike%20type%20Casual%20VS%20Memeber.png "Number of rides per each bike type Casual VS Member"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total of rides(Start_timing)
+
+```{r,eval=FALSE}
+#count the total number of rides per start_timing
+  year_2021_df_7 %>% 
+    count(start_timing)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+# Rowwise: 
+  start_timing       n
+  <chr>          <int>
+1 Afternoon    1455981
+2 Evening      1288296
+3 Morning      1034497
+4 Night         522167
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per start_timing and per user_type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(start_timing)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   user type [2]
+  usertype start_timing      n
+  <chr>    <chr>         <int>
+1 casual   Afternoon    673582
+2 casual   Evening      548857
+3 casual   Morning      340136
+4 casual   Night        293256
+5 member   Afternoon    782399
+6 member   Evening      739439
+7 member   Morning      694361
+8 member   Night        228911
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per start_timing for each bike
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(start_timing)
+
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 3
+# Groups:   bikeid [3]
+   bikeid        start_timing       n
+   <chr>         <chr>          <int>
+ 1 classic_bike  Afternoon    1012520
+ 2 classic_bike  Evening       934369
+ 3 classic_bike  Morning       735620
+ 4 classic_bike  Night         350294
+ 5 docked_bike   Afternoon     103142
+ 6 docked_bike   Evening        65610
+ 7 docked_bike   Morning        41147
+ 8 docked_bike   Night          37102
+ 9 electric_bike Afternoon     340319
+10 electric_bike Evening       288317
+11 electric_bike Morning       257730
+12 electric_bike Night         134771
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per start_timing for each bike per user_type
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid) %>% 
+    count(start_timing) %>% 
+    print(n=22)# to show the whole tibble
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 21 × 4
+# Groups:   usertype, bikeid [6]
+   usertype bikeid        start_timing      n
+   <chr>    <chr>         <chr>         <int>
+ 1 casual   classic_bike  Afternoon    405859
+ 2 casual   classic_bike  Evening      349452
+ 3 casual   classic_bike  Morning      204895
+ 4 casual   classic_bike  Night        179666
+ 5 casual   docked_bike   Afternoon    103142
+ 6 casual   docked_bike   Evening       65609
+ 7 casual   docked_bike   Morning       41147
+ 8 casual   docked_bike   Night         37102
+ 9 casual   electric_bike Afternoon    164581
+10 casual   electric_bike Evening      133796
+11 casual   electric_bike Morning       94094
+12 casual   electric_bike Night         76488
+13 member   classic_bike  Afternoon    606661
+14 member   classic_bike  Evening      584917
+15 member   classic_bike  Morning      530725
+16 member   classic_bike  Night        170628
+17 member   docked_bike   Evening           1
+18 member   electric_bike Afternoon    175738
+19 member   electric_bike Evening      154521
+20 member   electric_bike Morning      163636
+21 member   electric_bike Night         58283
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz
+  ggplot(data = year_2021_df_7, mapping = aes(x= start_timing, fill = start_timing)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made through the day",caption = "Casual Vs Member",x="start timing", y="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))+ #centering the title
+    scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "Start_timing")+ # to change the name of the legend
+    facet_wrap(~usertype~bikeid)
+  
+  #ggsave("plot4-Number of rides per each bike type Casual VS Member through the day.png")
+  
+```
+
+<div>
+
+::: {style="border-style: solid; border-width: thin; border-color: #FFFFFF;"}
+![**Number of rides per each bike type Casual VS Member through the day**](plot4-Number%20of%20rides%20per%20each%20bike%20type%20Casual%20VS%20Memeber%20through%20the%20day.png "Number of rides per each bike type Casual VS Member through the day"){style="border:2px solid black;"}
+:::
+
+</div>
+
+#### Total number of rides (Hour)
+
+```{r,eval=FALSE}
+#----------------------------hour-------------------
+#count the total number of rides per hour
+  year_2021_df_7 %>% 
+    count(start_hour) %>% 
+    print(n=25)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 2
+# Rowwise: 
+   start_hour      n
+   <chr>       <int>
+ 1 00          61924
+ 2 01          43236
+ 3 02          26198
+ 4 03          14039
+ 5 04          11921
+ 6 05          33161
+ 7 06          87734
+ 8 07         160728
+ 9 08         191680
+10 09         159838
+11 10         178295
+12 11         223061
+13 12         261119
+14 13         267120
+15 14         268117
+16 15         297452
+17 16         362173
+18 17         443229
+19 18         380194
+20 19         275733
+21 20         189140
+22 21         148577
+23 22         125308
+24 23          90964
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per hour for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(start_hour) %>% 
+    print(n=49)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 48 × 3
+# Groups:   usertype [2]
+   usertype start_hour      n
+   <chr>    <chr>       <int>
+ 1 casual   00          37539
+ 2 casual   01          27479
+ 3 casual   02          17589
+ 4 casual   03           9160
+ 5 casual   04           6102
+ 6 casual   05           8144
+ 7 casual   06          18089
+ 8 casual   07          33858
+ 9 casual   08          46041
+10 casual   09          55338
+11 casual   10          77047
+12 casual   11         101619
+13 casual   12         121028
+14 casual   13         129017
+15 casual   14         131900
+16 casual   15         138705
+17 casual   16         152932
+18 casual   17         179383
+19 casual   18         160654
+20 casual   19         121427
+21 casual   20          87393
+22 casual   21          74257
+23 casual   22          68717
+24 casual   23          52413
+25 member   00          24385
+26 member   01          15757
+27 member   02           8609
+28 member   03           4879
+29 member   04           5819
+30 member   05          25017
+31 member   06          69645
+32 member   07         126870
+33 member   08         145639
+34 member   09         104500
+35 member   10         101248
+36 member   11         121442
+37 member   12         140091
+38 member   13         138103
+39 member   14         136217
+40 member   15         158747
+41 member   16         209241
+42 member   17         263846
+43 member   18         219540
+44 member   19         154306
+45 member   20         101747
+46 member   21          74320
+47 member   22          56591
+48 member   23          38551
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per hour for each bike id
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(start_hour) %>% 
+    print(n=80)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 72 × 3
+# Groups:   bikeid [3]
+   bikeid        start_hour      n
+   <chr>         <chr>       <int>
+ 1 classic_bike  00          40679
+ 2 classic_bike  01          28571
+ 3 classic_bike  02          16989
+ 4 classic_bike  03           8806
+ 5 classic_bike  04           7447
+ 6 classic_bike  05          23054
+ 7 classic_bike  06          62866
+ 8 classic_bike  07         116619
+ 9 classic_bike  08         137815
+10 classic_bike  09         113360
+11 classic_bike  10         125135
+12 classic_bike  11         156771
+13 classic_bike  12         182974
+14 classic_bike  13         185598
+15 classic_bike  14         185198
+16 classic_bike  15         205376
+17 classic_bike  16         253374
+18 classic_bike  17         320914
+19 classic_bike  18         279473
+20 classic_bike  19         200270
+21 classic_bike  20         133712
+22 classic_bike  21         102281
+23 classic_bike  22          84839
+24 classic_bike  23          60682
+25 docked_bike   00           4833
+26 docked_bike   01           3385
+27 docked_bike   02           2257
+28 docked_bike   03           1287
+29 docked_bike   04            759
+30 docked_bike   05            656
+31 docked_bike   06           1171
+32 docked_bike   07           2329
+33 docked_bike   08           3769
+34 docked_bike   09           6830
+35 docked_bike   10          11304
+36 docked_bike   11          15088
+37 docked_bike   12          18434
+38 docked_bike   13          20517
+39 docked_bike   14          21175
+40 docked_bike   15          21188
+41 docked_bike   16          21828
+42 docked_bike   17          21876
+43 docked_bike   18          17970
+44 docked_bike   19          14609
+45 docked_bike   20          11155
+46 docked_bike   21           9410
+47 docked_bike   22           8601
+48 docked_bike   23           6570
+49 electric_bike 00          16412
+50 electric_bike 01          11280
+51 electric_bike 02           6952
+52 electric_bike 03           3946
+53 electric_bike 04           3715
+54 electric_bike 05           9451
+55 electric_bike 06          23697
+56 electric_bike 07          41780
+57 electric_bike 08          50096
+58 electric_bike 09          39648
+59 electric_bike 10          41856
+60 electric_bike 11          51202
+61 electric_bike 12          59711
+62 electric_bike 13          61005
+63 electric_bike 14          61744
+64 electric_bike 15          70888
+65 electric_bike 16          86971
+66 electric_bike 17         100439
+67 electric_bike 18          82751
+68 electric_bike 19          60854
+69 electric_bike 20          44273
+70 electric_bike 21          36886
+71 electric_bike 22          31868
+72 electric_bike 23          23712
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per hour for each bike id for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid) %>% 
+    count(start_hour) %>% 
+    print(n=122)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 121 × 4
+# Groups:   usertype, bikeid [6]
+    usertype bikeid        start_hour      n
+    <chr>    <chr>         <chr>       <int>
+  1 casual   classic_bike  00          22770
+  2 casual   classic_bike  01          17022
+  3 casual   classic_bike  02          10709
+  4 casual   classic_bike  03           5238
+  5 casual   classic_bike  04           3358
+  6 casual   classic_bike  05           4636
+  7 casual   classic_bike  06          10639
+  8 casual   classic_bike  07          20129
+  9 casual   classic_bike  08          27804
+ 10 casual   classic_bike  09          33138
+ 11 casual   classic_bike  10          46489
+ 12 casual   classic_bike  11          62060
+ 13 casual   classic_bike  12          73263
+ 14 casual   classic_bike  13          77858
+ 15 casual   classic_bike  14          79344
+ 16 casual   classic_bike  15          83311
+ 17 casual   classic_bike  16          92083
+ 18 casual   classic_bike  17         113091
+ 19 casual   classic_bike  18         104796
+ 20 casual   classic_bike  19          77464
+ 21 casual   classic_bike  20          54101
+ 22 casual   classic_bike  21          45739
+ 23 casual   classic_bike  22          42452
+ 24 casual   classic_bike  23          32378
+ 25 casual   docked_bike   00           4833
+ 26 casual   docked_bike   01           3385
+ 27 casual   docked_bike   02           2257
+ 28 casual   docked_bike   03           1287
+ 29 casual   docked_bike   04            759
+ 30 casual   docked_bike   05            656
+ 31 casual   docked_bike   06           1171
+ 32 casual   docked_bike   07           2329
+ 33 casual   docked_bike   08           3769
+ 34 casual   docked_bike   09           6830
+ 35 casual   docked_bike   10          11304
+ 36 casual   docked_bike   11          15088
+ 37 casual   docked_bike   12          18434
+ 38 casual   docked_bike   13          20517
+ 39 casual   docked_bike   14          21175
+ 40 casual   docked_bike   15          21188
+ 41 casual   docked_bike   16          21828
+ 42 casual   docked_bike   17          21876
+ 43 casual   docked_bike   18          17969
+ 44 casual   docked_bike   19          14609
+ 45 casual   docked_bike   20          11155
+ 46 casual   docked_bike   21           9410
+ 47 casual   docked_bike   22           8601
+ 48 casual   docked_bike   23           6570
+ 49 casual   electric_bike 00           9936
+ 50 casual   electric_bike 01           7072
+ 51 casual   electric_bike 02           4623
+ 52 casual   electric_bike 03           2635
+ 53 casual   electric_bike 04           1985
+ 54 casual   electric_bike 05           2852
+ 55 casual   electric_bike 06           6279
+ 56 casual   electric_bike 07          11400
+ 57 casual   electric_bike 08          14468
+ 58 casual   electric_bike 09          15370
+ 59 casual   electric_bike 10          19254
+ 60 casual   electric_bike 11          24471
+ 61 casual   electric_bike 12          29331
+ 62 casual   electric_bike 13          30642
+ 63 casual   electric_bike 14          31381
+ 64 casual   electric_bike 15          34206
+ 65 casual   electric_bike 16          39021
+ 66 casual   electric_bike 17          44416
+ 67 casual   electric_bike 18          37889
+ 68 casual   electric_bike 19          29354
+ 69 casual   electric_bike 20          22137
+ 70 casual   electric_bike 21          19108
+ 71 casual   electric_bike 22          17664
+ 72 casual   electric_bike 23          13465
+ 73 member   classic_bike  00          17909
+ 74 member   classic_bike  01          11549
+ 75 member   classic_bike  02           6280
+ 76 member   classic_bike  03           3568
+ 77 member   classic_bike  04           4089
+ 78 member   classic_bike  05          18418
+ 79 member   classic_bike  06          52227
+ 80 member   classic_bike  07          96490
+ 81 member   classic_bike  08         110011
+ 82 member   classic_bike  09          80222
+ 83 member   classic_bike  10          78646
+ 84 member   classic_bike  11          94711
+ 85 member   classic_bike  12         109711
+ 86 member   classic_bike  13         107740
+ 87 member   classic_bike  14         105854
+ 88 member   classic_bike  15         122065
+ 89 member   classic_bike  16         161291
+ 90 member   classic_bike  17         207823
+ 91 member   classic_bike  18         174677
+ 92 member   classic_bike  19         122806
+ 93 member   classic_bike  20          79611
+ 94 member   classic_bike  21          56542
+ 95 member   classic_bike  22          42387
+ 96 member   classic_bike  23          28304
+ 97 member   docked_bike   18              1
+ 98 member   electric_bike 00           6476
+ 99 member   electric_bike 01           4208
+100 member   electric_bike 02           2329
+101 member   electric_bike 03           1311
+102 member   electric_bike 04           1730
+103 member   electric_bike 05           6599
+104 member   electric_bike 06          17418
+105 member   electric_bike 07          30380
+106 member   electric_bike 08          35628
+107 member   electric_bike 09          24278
+108 member   electric_bike 10          22602
+109 member   electric_bike 11          26731
+110 member   electric_bike 12          30380
+111 member   electric_bike 13          30363
+112 member   electric_bike 14          30363
+113 member   electric_bike 15          36682
+114 member   electric_bike 16          47950
+115 member   electric_bike 17          56023
+116 member   electric_bike 18          44862
+117 member   electric_bike 19          31500
+118 member   electric_bike 20          22136
+119 member   electric_bike 21          17778
+120 member   electric_bike 22          14204
+121 member   electric_bike 23          10247
+```
+
+```{r,eval=FALSE}
+
+#count the total number of rides per hour for each bike id for each user-type and 
+ #start-timing to get the busy hour for each category
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid,start_timing) %>% 
+    count(start_hour) %>% 
+    print(n=122)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 121 × 5
+# Groups:   usertype, bikeid, start_timing [21]
+    usertype bikeid        start_timing start_hour      n
+    <chr>    <chr>         <chr>        <chr>       <int>
+  1 casual   classic_bike  Afternoon    12          73263
+  2 casual   classic_bike  Afternoon    13          77858
+  3 casual   classic_bike  Afternoon    14          79344
+  4 casual   classic_bike  Afternoon    15          83311
+  5 casual   classic_bike  Afternoon    16          92083
+  6 casual   classic_bike  Evening      17         113091
+  7 casual   classic_bike  Evening      18         104796
+  8 casual   classic_bike  Evening      19          77464
+  9 casual   classic_bike  Evening      20          54101
+ 10 casual   classic_bike  Morning      05           4636
+ 11 casual   classic_bike  Morning      06          10639
+ 12 casual   classic_bike  Morning      07          20129
+ 13 casual   classic_bike  Morning      08          27804
+ 14 casual   classic_bike  Morning      09          33138
+ 15 casual   classic_bike  Morning      10          46489
+ 16 casual   classic_bike  Morning      11          62060
+ 17 casual   classic_bike  Night        00          22770
+ 18 casual   classic_bike  Night        01          17022
+ 19 casual   classic_bike  Night        02          10709
+ 20 casual   classic_bike  Night        03           5238
+ 21 casual   classic_bike  Night        04           3358
+ 22 casual   classic_bike  Night        21          45739
+ 23 casual   classic_bike  Night        22          42452
+ 24 casual   classic_bike  Night        23          32378
+ 25 casual   docked_bike   Afternoon    12          18434
+ 26 casual   docked_bike   Afternoon    13          20517
+ 27 casual   docked_bike   Afternoon    14          21175
+ 28 casual   docked_bike   Afternoon    15          21188
+ 29 casual   docked_bike   Afternoon    16          21828
+ 30 casual   docked_bike   Evening      17          21876
+ 31 casual   docked_bike   Evening      18          17969
+ 32 casual   docked_bike   Evening      19          14609
+ 33 casual   docked_bike   Evening      20          11155
+ 34 casual   docked_bike   Morning      05            656
+ 35 casual   docked_bike   Morning      06           1171
+ 36 casual   docked_bike   Morning      07           2329
+ 37 casual   docked_bike   Morning      08           3769
+ 38 casual   docked_bike   Morning      09           6830
+ 39 casual   docked_bike   Morning      10          11304
+ 40 casual   docked_bike   Morning      11          15088
+ 41 casual   docked_bike   Night        00           4833
+ 42 casual   docked_bike   Night        01           3385
+ 43 casual   docked_bike   Night        02           2257
+ 44 casual   docked_bike   Night        03           1287
+ 45 casual   docked_bike   Night        04            759
+ 46 casual   docked_bike   Night        21           9410
+ 47 casual   docked_bike   Night        22           8601
+ 48 casual   docked_bike   Night        23           6570
+ 49 casual   electric_bike Afternoon    12          29331
+ 50 casual   electric_bike Afternoon    13          30642
+ 51 casual   electric_bike Afternoon    14          31381
+ 52 casual   electric_bike Afternoon    15          34206
+ 53 casual   electric_bike Afternoon    16          39021
+ 54 casual   electric_bike Evening      17          44416
+ 55 casual   electric_bike Evening      18          37889
+ 56 casual   electric_bike Evening      19          29354
+ 57 casual   electric_bike Evening      20          22137
+ 58 casual   electric_bike Morning      05           2852
+ 59 casual   electric_bike Morning      06           6279
+ 60 casual   electric_bike Morning      07          11400
+ 61 casual   electric_bike Morning      08          14468
+ 62 casual   electric_bike Morning      09          15370
+ 63 casual   electric_bike Morning      10          19254
+ 64 casual   electric_bike Morning      11          24471
+ 65 casual   electric_bike Night        00           9936
+ 66 casual   electric_bike Night        01           7072
+ 67 casual   electric_bike Night        02           4623
+ 68 casual   electric_bike Night        03           2635
+ 69 casual   electric_bike Night        04           1985
+ 70 casual   electric_bike Night        21          19108
+ 71 casual   electric_bike Night        22          17664
+ 72 casual   electric_bike Night        23          13465
+ 73 member   classic_bike  Afternoon    12         109711
+ 74 member   classic_bike  Afternoon    13         107740
+ 75 member   classic_bike  Afternoon    14         105854
+ 76 member   classic_bike  Afternoon    15         122065
+ 77 member   classic_bike  Afternoon    16         161291
+ 78 member   classic_bike  Evening      17         207823
+ 79 member   classic_bike  Evening      18         174677
+ 80 member   classic_bike  Evening      19         122806
+ 81 member   classic_bike  Evening      20          79611
+ 82 member   classic_bike  Morning      05          18418
+ 83 member   classic_bike  Morning      06          52227
+ 84 member   classic_bike  Morning      07          96490
+ 85 member   classic_bike  Morning      08         110011
+ 86 member   classic_bike  Morning      09          80222
+ 87 member   classic_bike  Morning      10          78646
+ 88 member   classic_bike  Morning      11          94711
+ 89 member   classic_bike  Night        00          17909
+ 90 member   classic_bike  Night        01          11549
+ 91 member   classic_bike  Night        02           6280
+ 92 member   classic_bike  Night        03           3568
+ 93 member   classic_bike  Night        04           4089
+ 94 member   classic_bike  Night        21          56542
+ 95 member   classic_bike  Night        22          42387
+ 96 member   classic_bike  Night        23          28304
+ 97 member   docked_bike   Evening      18              1
+ 98 member   electric_bike Afternoon    12          30380
+ 99 member   electric_bike Afternoon    13          30363
+100 member   electric_bike Afternoon    14          30363
+101 member   electric_bike Afternoon    15          36682
+102 member   electric_bike Afternoon    16          47950
+103 member   electric_bike Evening      17          56023
+104 member   electric_bike Evening      18          44862
+105 member   electric_bike Evening      19          31500
+106 member   electric_bike Evening      20          22136
+107 member   electric_bike Morning      05           6599
+108 member   electric_bike Morning      06          17418
+109 member   electric_bike Morning      07          30380
+110 member   electric_bike Morning      08          35628
+111 member   electric_bike Morning      09          24278
+112 member   electric_bike Morning      10          22602
+113 member   electric_bike Morning      11          26731
+114 member   electric_bike Night        00           6476
+115 member   electric_bike Night        01           4208
+116 member   electric_bike Night        02           2329
+117 member   electric_bike Night        03           1311
+118 member   electric_bike Night        04           1730
+119 member   electric_bike Night        21          17778
+120 member   electric_bike Night        22          14204
+121 member   electric_bike Night        23          10247
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+  ggplot(data = year_2021_df_7, mapping = aes(y= start_hour, fill = start_hour)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made per hour",caption = "Casual Vs Member",y="Hour of order", x="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "Hour")+ # to change the name of the legend
+    facet_grid(~usertype)
+  
+  #ggsave("plot5-Number of rides per hour.png")
+```
+
+<div>
+
+::: {style="border-style: solid; border-width: thin; border-color: #FFFFFF;"}
+![**Number of rides per hour**](plot5-Number%20of%20rides%20per%20hour.png "Number of rides per hour"){style="border:2px solid black;"}
+:::
+
+</div>
+
+#### Total Number of rides(Day)
+
+```{r,eval=FALSE}
+#----------------------------day-------------------
+#count the total number of rides per each day
+  year_2021_df_7 %>% 
+    count(day_of_order)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 7 × 2
+# Rowwise: 
+  day_of_order      n
+  <chr>         <int>
+1 Friday       619393
+2 Monday       537042
+3 Saturday     768328
+4 Sunday       656482
+5 Thursday     567250
+6 Tuesday      569082
+7 Wednesday    583364
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each day for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(day_of_order)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 14 × 3
+# Groups:   usertype [2]
+   usertype day_of_order      n
+   <chr>    <chr>         <int>
+ 1 casual   Friday       266591
+ 2 casual   Monday       204025
+ 3 casual   Saturday     425797
+ 4 casual   Sunday       359535
+ 5 casual   Thursday     206358
+ 6 casual   Tuesday      194436
+ 7 casual   Wednesday    199089
+ 8 member   Friday       352802
+ 9 member   Monday       333017
+10 member   Saturday     342531
+11 member   Sunday       296947
+12 member   Thursday     360892
+13 member   Tuesday      374646
+14 member   Wednesday    384275
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each day for each bike id
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(day_of_order) %>% 
+    print(n=22)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 21 × 3
+# Groups:   bikeid [3]
+   bikeid        day_of_order      n
+   <chr>         <chr>         <int>
+ 1 classic_bike  Friday       430521
+ 2 classic_bike  Monday       377183
+ 3 classic_bike  Saturday     545073
+ 4 classic_bike  Sunday       467606
+ 5 classic_bike  Thursday     401147
+ 6 classic_bike  Tuesday      398373
+ 7 classic_bike  Wednesday    412900
+ 8 docked_bike   Friday        34368
+ 9 docked_bike   Monday        27905
+10 docked_bike   Saturday      63685
+11 docked_bike   Sunday        54545
+12 docked_bike   Thursday      22129
+13 docked_bike   Tuesday       22654
+14 docked_bike   Wednesday     21715
+15 electric_bike Friday       154504
+16 electric_bike Monday       131954
+17 electric_bike Saturday     159570
+18 electric_bike Sunday       134331
+19 electric_bike Thursday     143974
+20 electric_bike Tuesday      148055
+21 electric_bike Wednesday    148749
+```
+
+```{r,eval=FALSE}
+
+#count the total number of rides per each day for each bike id for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid) %>% 
+    count(day_of_order) %>% 
+    print(n=36)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 36 × 4
+# Groups:   usertype, bikeid [6]
+   usertype bikeid        day_of_order      n
+   <chr>    <chr>         <chr>         <int>
+ 1 casual   classic_bike  Friday       161224
+ 2 casual   classic_bike  Monday       119641
+ 3 casual   classic_bike  Saturday     273369
+ 4 casual   classic_bike  Sunday       229010
+ 5 casual   classic_bike  Thursday     125237
+ 6 casual   classic_bike  Tuesday      112669
+ 7 casual   classic_bike  Wednesday    118722
+ 8 casual   docked_bike   Friday        34368
+ 9 casual   docked_bike   Monday        27905
+10 casual   docked_bike   Saturday      63685
+11 casual   docked_bike   Sunday        54545
+12 casual   docked_bike   Thursday      22129
+13 casual   docked_bike   Tuesday       22654
+14 casual   docked_bike   Wednesday     21714
+15 casual   electric_bike Friday        70999
+16 casual   electric_bike Monday        56479
+17 casual   electric_bike Saturday      88743
+18 casual   electric_bike Sunday        75980
+19 casual   electric_bike Thursday      58992
+20 casual   electric_bike Tuesday       59113
+21 casual   electric_bike Wednesday     58653
+22 member   classic_bike  Friday       269297
+23 member   classic_bike  Monday       257542
+24 member   classic_bike  Saturday     271704
+25 member   classic_bike  Sunday       238596
+26 member   classic_bike  Thursday     275910
+27 member   classic_bike  Tuesday      285704
+28 member   classic_bike  Wednesday    294178
+29 member   docked_bike   Wednesday         1
+30 member   electric_bike Friday        83505
+31 member   electric_bike Monday        75475
+32 member   electric_bike Saturday      70827
+33 member   electric_bike Sunday        58351
+34 member   electric_bike Thursday      84982
+35 member   electric_bike Tuesday       88942
+36 member   electric_bike Wednesday     90096
+```
+
+```{r,eval=FALSE}
+#count the total number of rides to know the busy day for start timing 
+  year_2021_df_7 %>% 
+    group_by(day_of_order) %>% 
+    count(start_timing) %>% 
+    print(n=2000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 28 × 3
+# Groups:   day_of_order [7]
+   day_of_order start_timing      n
+   <chr>        <chr>         <int>
+ 1 Friday       Afternoon    206081
+ 2 Friday       Evening      190997
+ 3 Friday       Morning      142968
+ 4 Friday       Night         79347
+ 5 Monday       Afternoon    173540
+ 6 Monday       Evening      177448
+ 7 Monday       Morning      137065
+ 8 Monday       Night         48989
+ 9 Saturday     Afternoon    303651
+10 Saturday     Evening      174823
+11 Saturday     Morning      166744
+12 Saturday     Night        123110
+13 Sunday       Afternoon    276742
+14 Sunday       Evening      145008
+15 Sunday       Morning      138489
+16 Sunday       Night         96243
+17 Thursday     Afternoon    162224
+18 Thursday     Evening      195288
+19 Thursday     Morning      143724
+20 Thursday     Night         66014
+21 Tuesday      Afternoon    167637
+22 Tuesday      Evening      199117
+23 Tuesday      Morning      151849
+24 Tuesday      Night         50479
+25 Wednesday    Afternoon    166106
+26 Wednesday    Evening      205615
+27 Wednesday    Morning      153658
+28 Wednesday    Night         57985
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each day for each hour per start timing
+  year_2021_df_7 %>% 
+    group_by(start_hour, start_timing ) %>% 
+    count(day_of_order) %>% 
+    print(n=200)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 168 × 4
+# Groups:   start_hour, start_timing [24]
+    start_hour start_timing day_of_order     n
+    <chr>      <chr>        <chr>        <int>
+  1 00         Night        Friday        7405
+  2 00         Night        Monday        4927
+  3 00         Night        Saturday     17064
+  4 00         Night        Sunday       20972
+  5 00         Night        Thursday      4589
+  6 00         Night        Tuesday       3157
+  7 00         Night        Wednesday     3810
+  8 01         Night        Friday        4454
+  9 01         Night        Monday        2889
+ 10 01         Night        Saturday     14704
+ 11 01         Night        Sunday       15751
+ 12 01         Night        Thursday      2194
+ 13 01         Night        Tuesday       1609
+ 14 01         Night        Wednesday     1635
+ 15 02         Night        Friday        2181
+ 16 02         Night        Monday        1774
+ 17 02         Night        Saturday      8856
+ 18 02         Night        Sunday       10352
+ 19 02         Night        Thursday      1138
+ 20 02         Night        Tuesday        924
+ 21 02         Night        Wednesday      973
+ 22 03         Night        Friday        1272
+ 23 03         Night        Monday        1182
+ 24 03         Night        Saturday      4047
+ 25 03         Night        Sunday        5478
+ 26 03         Night        Thursday       770
+ 27 03         Night        Tuesday        652
+ 28 03         Night        Wednesday      638
+ 29 04         Night        Friday        1384
+ 30 04         Night        Monday        1650
+ 31 04         Night        Saturday      2240
+ 32 04         Night        Sunday        3085
+ 33 04         Night        Thursday      1193
+ 34 04         Night        Tuesday       1176
+ 35 04         Night        Wednesday     1193
+ 36 05         Morning      Friday        4933
+ 37 05         Morning      Monday        5190
+ 38 05         Morning      Saturday      2619
+ 39 05         Morning      Sunday        2717
+ 40 05         Morning      Thursday      5519
+ 41 05         Morning      Tuesday       6222
+ 42 05         Morning      Wednesday     5961
+ 43 06         Morning      Friday       13543
+ 44 06         Morning      Monday       14218
+ 45 06         Morning      Saturday      5608
+ 46 06         Morning      Sunday        4915
+ 47 06         Morning      Thursday     15348
+ 48 06         Morning      Tuesday      17179
+ 49 06         Morning      Wednesday    16923
+ 50 07         Morning      Friday       23976
+ 51 07         Morning      Monday       25574
+ 52 07         Morning      Saturday     10503
+ 53 07         Morning      Sunday        8205
+ 54 07         Morning      Thursday     28638
+ 55 07         Morning      Tuesday      31919
+ 56 07         Morning      Wednesday    31913
+ 57 08         Morning      Friday       27909
+ 58 08         Morning      Monday       28628
+ 59 08         Morning      Saturday     18973
+ 60 08         Morning      Sunday       14140
+ 61 08         Morning      Thursday     32128
+ 62 08         Morning      Tuesday      34571
+ 63 08         Morning      Wednesday    35331
+ 64 09         Morning      Friday       21496
+ 65 09         Morning      Monday       19320
+ 66 09         Morning      Saturday     30865
+ 67 09         Morning      Sunday       24324
+ 68 09         Morning      Thursday     20528
+ 69 09         Morning      Tuesday      21307
+ 70 09         Morning      Wednesday    21998
+ 71 10         Morning      Friday       22508
+ 72 10         Morning      Monday       19307
+ 73 10         Morning      Saturday     44276
+ 74 10         Morning      Sunday       36983
+ 75 10         Morning      Thursday     18571
+ 76 10         Morning      Tuesday      18143
+ 77 10         Morning      Wednesday    18507
+ 78 11         Morning      Friday       28603
+ 79 11         Morning      Monday       24828
+ 80 11         Morning      Saturday     53900
+ 81 11         Morning      Sunday       47205
+ 82 11         Morning      Thursday     22992
+ 83 11         Morning      Tuesday      22508
+ 84 11         Morning      Wednesday    23025
+ 85 12         Afternoon    Friday       34814
+ 86 12         Afternoon    Monday       30144
+ 87 12         Afternoon    Saturday     60219
+ 88 12         Afternoon    Sunday       53407
+ 89 12         Afternoon    Thursday     27150
+ 90 12         Afternoon    Tuesday      27527
+ 91 12         Afternoon    Wednesday    27858
+ 92 13         Afternoon    Friday       36197
+ 93 13         Afternoon    Monday       30247
+ 94 13         Afternoon    Saturday     63062
+ 95 13         Afternoon    Sunday       55796
+ 96 13         Afternoon    Thursday     26573
+ 97 13         Afternoon    Tuesday      27873
+ 98 13         Afternoon    Wednesday    27372
+ 99 14         Afternoon    Friday       37471
+100 14         Afternoon    Monday       30286
+101 14         Afternoon    Saturday     62400
+102 14         Afternoon    Sunday       55659
+103 14         Afternoon    Thursday     27117
+104 14         Afternoon    Tuesday      27754
+105 14         Afternoon    Wednesday    27430
+106 15         Afternoon    Friday       43134
+107 15         Afternoon    Monday       35225
+108 15         Afternoon    Saturday     60031
+109 15         Afternoon    Sunday       57282
+110 15         Afternoon    Thursday     33420
+111 15         Afternoon    Tuesday      34541
+112 15         Afternoon    Wednesday    33819
+113 16         Afternoon    Friday       54465
+114 16         Afternoon    Monday       47638
+115 16         Afternoon    Saturday     57939
+116 16         Afternoon    Sunday       54598
+117 16         Afternoon    Thursday     47964
+118 16         Afternoon    Tuesday      49942
+119 16         Afternoon    Wednesday    49627
+120 17         Evening      Friday       64906
+121 17         Evening      Monday       63112
+122 17         Evening      Saturday     55037
+123 17         Evening      Sunday       49406
+124 17         Evening      Thursday     66298
+125 17         Evening      Tuesday      72130
+126 17         Evening      Wednesday    72340
+127 18         Evening      Friday       56900
+128 18         Evening      Monday       53031
+129 18         Evening      Saturday     49619
+130 18         Evening      Sunday       41159
+131 18         Evening      Thursday     58512
+132 18         Evening      Tuesday      59757
+133 18         Evening      Wednesday    61216
+134 19         Evening      Friday       41291
+135 19         Evening      Monday       36945
+136 19         Evening      Saturday     40155
+137 19         Evening      Sunday       31636
+138 19         Evening      Thursday     41820
+139 19         Evening      Tuesday      40960
+140 19         Evening      Wednesday    42926
+141 20         Evening      Friday       27900
+142 20         Evening      Monday       24360
+143 20         Evening      Saturday     30012
+144 20         Evening      Sunday       22807
+145 20         Evening      Thursday     28658
+146 20         Evening      Tuesday      26270
+147 20         Evening      Wednesday    29133
+148 21         Night        Friday       22370
+149 21         Night        Monday       17432
+150 21         Night        Saturday     25650
+151 21         Night        Sunday       17580
+152 21         Night        Thursday     23024
+153 21         Night        Tuesday      19433
+154 21         Night        Wednesday    23088
+155 22         Night        Friday       20551
+156 22         Night        Monday       12402
+157 22         Night        Saturday     25947
+158 22         Night        Sunday       14278
+159 22         Night        Thursday     19902
+160 22         Night        Tuesday      15125
+161 22         Night        Wednesday    17103
+162 23         Night        Friday       19730
+163 23         Night        Monday        6733
+164 23         Night        Saturday     24602
+165 23         Night        Sunday        8747
+166 23         Night        Thursday     13204
+167 23         Night        Tuesday       8403
+168 23         Night        Wednesday     9545
+
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each day for each hour per start timing for each bike id for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype, bikeid,start_hour, start_timing ) %>% 
+    count(day_of_order) %>% 
+    print(n=200)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 841 × 6
+# Groups:   usertype, bikeid, start_hour, start_timing [121]
+   usertype bikeid       start_hour start_timing day_of_order     n
+   <chr>    <chr>        <chr>      <chr>        <chr>        <int>
+ 1 casual   classic_bike 00         Night        Friday        2472
+ 2 casual   classic_bike 00         Night        Monday        1721
+ 3 casual   classic_bike 00         Night        Saturday      6616
+ 4 casual   classic_bike 00         Night        Sunday        8602
+ 5 casual   classic_bike 00         Night        Thursday      1394
+ 6 casual   classic_bike 00         Night        Tuesday        870
+ 7 casual   classic_bike 00         Night        Wednesday     1095
+ 8 casual   classic_bike 01         Night        Friday        1589
+ 9 casual   classic_bike 01         Night        Monday        1032
+10 casual   classic_bike 01         Night        Saturday      6217
+# … with 831 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+  ggplot(data = year_2021_df_7, mapping = aes(y= day_of_order, fill = day_of_order)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made per day",caption = "Casual Vs Member",y="day_of_order", x="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "Hour")+ # to change the name of the legend
+    facet_grid(~usertype)
+  
+  #ggsave("plot6-Number of rides per day.png")
+```
+
+<div>
+
+<div>
+
+![**Number of rides per day**](plot6-Number%20of%20rides%20per%20day.png "Number of rides per day"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total number of rides(Month)
+
+```{r,eval=FALSE}
+#----------------------------Month-------------------
+#count the total number of rides per each month
+  year_2021_df_7 %>% 
+    count(month)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 2
+# Rowwise: 
+   month          n
+   <chr>      <int>
+ 1 April     273257
+ 2 August    633825
+ 3 December  169964
+ 4 February   40128
+ 5 January    79652
+ 6 July      646656
+ 7 June      564492
+ 8 March     189092
+ 9 May       414823
+10 November  246379
+11 October   455885
+12 September 586788
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each month per user-type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(month) %>% 
+    print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 3
+# Groups:   usertype [2]
+   usertype month          n
+   <chr>    <chr>      <int>
+ 1 casual   April     103298
+ 2 casual   August    313231
+ 3 casual   December   42237
+ 4 casual   February    7547
+ 5 casual   January    13230
+ 6 casual   July      336030
+ 7 casual   June      272036
+ 8 casual   March      64713
+ 9 casual   May       190354
+10 casual   November   65961
+11 casual   October   176865
+12 casual   September 270329
+13 member   April     169959
+14 member   August    320594
+15 member   December  127727
+16 member   February   32581
+17 member   January    66422
+18 member   July      310626
+19 member   June      292456
+20 member   March     124379
+21 member   May       224469
+22 member   November  180418
+23 member   October   279020
+24 member   September 316459
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each month per bike
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(month) %>% 
+    print(n=36) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 36 × 3
+# Groups:   bikeid [3]
+   bikeid        month          n
+   <chr>         <chr>      <int>
+ 1 classic_bike  April     196948
+ 2 classic_bike  August    471082
+ 3 classic_bike  December   95577
+ 4 classic_bike  February   32149
+ 5 classic_bike  January    58246
+ 6 classic_bike  July      472362
+ 7 classic_bike  June      402555
+ 8 classic_bike  March     140357
+ 9 classic_bike  May       283957
+10 classic_bike  November  146550
+11 classic_bike  October   298343
+12 classic_bike  September 434677
+13 docked_bike   April      17523
+14 docked_bike   August     36801
+15 docked_bike   December    4088
+16 docked_bike   February     969
+17 docked_bike   January     1589
+18 docked_bike   July       46743
+19 docked_bike   June       40142
+20 docked_bike   March      11218
+21 docked_bike   May        32669
+22 docked_bike   November    6515
+23 docked_bike   October    19430
+24 docked_bike   September  29314
+25 electric_bike April      58786
+26 electric_bike August    125942
+27 electric_bike December   70299
+28 electric_bike February    7010
+29 electric_bike January    19817
+30 electric_bike July      127551
+31 electric_bike June      121795
+32 electric_bike March      37517
+33 electric_bike May        98197
+34 electric_bike November   93314
+35 electric_bike October   138112
+36 electric_bike September 122797
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each month to know the busy day
+  year_2021_df_7 %>% 
+    group_by(month) %>% 
+    count(day_of_order) %>% 
+    print(n=100) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 84 × 3
+# Groups:   month [12]
+   month     day_of_order      n
+   <chr>     <chr>         <int>
+ 1 April     Friday        48121
+ 2 April     Monday        35358
+ 3 April     Saturday      44142
+ 4 April     Sunday        40211
+ 5 April     Thursday      33082
+ 6 April     Tuesday       41763
+ 7 April     Wednesday     30580
+ 8 August    Friday        87681
+ 9 August    Monday        85360
+10 August    Saturday     108119
+11 August    Sunday       112191
+12 August    Thursday      80416
+13 August    Tuesday       87152
+14 August    Wednesday     72906
+15 December  Friday        28629
+16 December  Monday        21228
+17 December  Saturday      20047
+18 December  Sunday        15768
+19 December  Thursday      33061
+20 December  Tuesday       20113
+21 December  Wednesday     31118
+22 February  Friday         6471
+23 February  Monday         3699
+24 February  Saturday       8034
+25 February  Sunday         4363
+26 February  Thursday       5760
+27 February  Tuesday        5488
+28 February  Wednesday      6313
+29 January   Friday        12618
+30 January   Monday        10964
+31 January   Saturday      13269
+32 January   Sunday         9491
+33 January   Thursday      11883
+34 January   Tuesday       10361
+35 January   Wednesday     11066
+36 July      Friday       106684
+37 July      Monday        74002
+38 July      Saturday     129396
+39 July      Sunday        85169
+40 July      Thursday      96085
+41 July      Tuesday       76465
+42 July      Wednesday     78855
+43 June      Friday        77544
+44 June      Monday        60849
+45 June      Saturday      94343
+46 June      Sunday        88126
+47 June      Thursday      70206
+48 June      Tuesday       84793
+49 June      Wednesday     88631
+50 March     Friday        21555
+51 March     Monday        28528
+52 March     Saturday      37511
+53 March     Sunday        28940
+54 March     Thursday      18127
+55 March     Tuesday       28090
+56 March     Wednesday     26341
+57 May       Friday        51368
+58 May       Monday        59015
+59 May       Saturday      87746
+60 May       Sunday        80493
+61 May       Thursday      45988
+62 May       Tuesday       41098
+63 May       Wednesday     49115
+64 November  Friday        28725
+65 November  Monday        41463
+66 November  Saturday      33924
+67 November  Sunday        29827
+68 November  Thursday      28555
+69 November  Tuesday       46955
+70 November  Wednesday     36930
+71 October   Friday        71008
+72 October   Monday        45730
+73 October   Saturday      94529
+74 October   Sunday        72634
+75 October   Thursday      48909
+76 October   Tuesday       61918
+77 October   Wednesday     61157
+78 September Friday        78989
+79 September Monday        70846
+80 September Saturday      97268
+81 September Sunday        89269
+82 September Thursday      95178
+83 September Tuesday       64886
+84 September Wednesday     90352
+```
+
+```{r,eval=FALSE}
+
+#count the total number of rides per each month to know the busy day for start timing and hour
+  year_2021_df_7 %>% 
+    group_by(month,day_of_order) %>% 
+    count(start_timing) %>% 
+    print(n=2000) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 336 × 4
+# Groups:   month, day_of_order [84]
+   month day_of_order start_timing     n
+   <chr> <chr>        <chr>        <int>
+ 1 April Friday       Afternoon    16614
+ 2 April Friday       Evening      16417
+ 3 April Friday       Morning      10696
+ 4 April Friday       Night         4394
+ 5 April Monday       Afternoon    10885
+ 6 April Monday       Evening      13517
+ 7 April Monday       Morning       8098
+ 8 April Monday       Night         2858
+ 9 April Saturday     Afternoon    19525
+10 April Saturday     Evening      10508
+# … with 326 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each month to know the busy day for start timing and hour
+  year_2021_df_7 %>% 
+    group_by(month,day_of_order, start_timing) %>% 
+    count(start_hour) %>% 
+    print(n=2000) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2,016 × 5
+# Groups:   month, day_of_order, start_timing [336]
+   month day_of_order start_timing start_hour     n
+   <chr> <chr>        <chr>        <chr>      <int>
+ 1 April Friday       Afternoon    12          2655
+ 2 April Friday       Afternoon    13          2829
+ 3 April Friday       Afternoon    14          3024
+ 4 April Friday       Afternoon    15          3588
+ 5 April Friday       Afternoon    16          4518
+ 6 April Friday       Evening      17          5887
+ 7 April Friday       Evening      18          5057
+ 8 April Friday       Evening      19          3540
+ 9 April Friday       Evening      20          1933
+10 April Friday       Morning      05           418
+# … with 2,006 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#count the total number of rides per each month to know the busy day for start timing and hour, user-type and bike id
+  year_2021_df_7 %>% 
+    group_by(usertype, bikeid,month,day_of_order, start_timing) %>% 
+    count(start_hour) %>% 
+    print(n=2000) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 9,953 × 7
+# Groups:   usertype, bikeid, month, day_of_order, start_timing [1,681]
+   usertype bikeid       month day_of_order start_timing start_hour     n
+   <chr>    <chr>        <chr> <chr>        <chr>        <chr>      <int>
+ 1 casual   classic_bike April Friday       Afternoon    12           574
+ 2 casual   classic_bike April Friday       Afternoon    13           685
+ 3 casual   classic_bike April Friday       Afternoon    14           762
+ 4 casual   classic_bike April Friday       Afternoon    15           805
+ 5 casual   classic_bike April Friday       Afternoon    16           927
+ 6 casual   classic_bike April Friday       Evening      17          1408
+ 7 casual   classic_bike April Friday       Evening      18          1178
+ 8 casual   classic_bike April Friday       Evening      19           875
+ 9 casual   classic_bike April Friday       Evening      20           423
+10 casual   classic_bike April Friday       Morning      05            34
+# … with 9,943 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz
+  ggplot(data = year_2021_df_7, mapping = aes(y= month, fill = month)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made per month",caption = "Casual Vs Member",y="Month", x="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "Month")+ # to change the name of the legend
+    facet_grid(~usertype)
+  
+  #ggsave("plot7-Number of rides per Month.png") 
+```
+
+<div>
+
+<div>
+
+![**Number of rides per Month**](plot7-Number%20of%20rides%20per%20Month.png "Number of rides per Month"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total rides(Season)
+
+```{r,eval=FALSE}
+#----------------------------Season-------------------
+#count the total number of rides per season
+  year_2021_df_7 %>% 
+    count(season)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+# Rowwise: 
+  season       n
+  <chr>    <int>
+1 Autumn 1289052
+2 Spring  877172
+3 Summer 1844973
+4 Winter  289744
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each user-type per season
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(season)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype season      n
+  <chr>    <chr>   <int>
+1 casual   Autumn 513155
+2 casual   Spring 358365
+3 casual   Summer 921297
+4 casual   Winter  63014
+5 member   Autumn 775897
+6 member   Spring 518807
+7 member   Summer 923676
+8 member   Winter 226730
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each bike id per season
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(season)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 3
+# Groups:   bikeid [3]
+   bikeid        season       n
+   <chr>         <chr>    <int>
+ 1 classic_bike  Autumn  879570
+ 2 classic_bike  Spring  621262
+ 3 classic_bike  Summer 1345999
+ 4 classic_bike  Winter  185972
+ 5 docked_bike   Autumn   55259
+ 6 docked_bike   Spring   61410
+ 7 docked_bike   Summer  123686
+ 8 docked_bike   Winter    6646
+ 9 electric_bike Autumn  354223
+10 electric_bike Spring  194500
+11 electric_bike Summer  375288
+12 electric_bike Winter   97126
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each bike id per season for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid) %>% 
+    count(season) %>% 
+    print(n=22)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 21 × 4
+# Groups:   usertype, bikeid [6]
+   usertype bikeid        season      n
+   <chr>    <chr>         <chr>   <int>
+ 1 casual   classic_bike  Autumn 305328
+ 2 casual   classic_bike  Spring 207978
+ 3 casual   classic_bike  Summer 596506
+ 4 casual   classic_bike  Winter  30060
+ 5 casual   docked_bike   Autumn  55259
+ 6 casual   docked_bike   Spring  61410
+ 7 casual   docked_bike   Summer 123686
+ 8 casual   docked_bike   Winter   6645
+ 9 casual   electric_bike Autumn 152568
+10 casual   electric_bike Spring  88977
+11 casual   electric_bike Summer 201105
+12 casual   electric_bike Winter  26309
+13 member   classic_bike  Autumn 574242
+14 member   classic_bike  Spring 413284
+15 member   classic_bike  Summer 749493
+16 member   classic_bike  Winter 155912
+17 member   docked_bike   Winter      1
+18 member   electric_bike Autumn 201655
+19 member   electric_bike Spring 105523
+20 member   electric_bike Summer 174183
+21 member   electric_bike Winter  70817
+```
+
+```{r,eval=FALSE}
+#find the peak month for each season according to each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,month) %>% 
+    count(season) %>% 
+    print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 4
+# Groups:   usertype, month [24]
+   usertype month     season      n
+   <chr>    <chr>     <chr>   <int>
+ 1 casual   April     Spring 103298
+ 2 casual   August    Summer 313231
+ 3 casual   December  Winter  42237
+ 4 casual   February  Winter   7547
+ 5 casual   January   Winter  13230
+ 6 casual   July      Summer 336030
+ 7 casual   June      Summer 272036
+ 8 casual   March     Spring  64713
+ 9 casual   May       Spring 190354
+10 casual   November  Autumn  65961
+11 casual   October   Autumn 176865
+12 casual   September Autumn 270329
+13 member   April     Spring 169959
+14 member   August    Summer 320594
+15 member   December  Winter 127727
+16 member   February  Winter  32581
+17 member   January   Winter  66422
+18 member   July      Summer 310626
+19 member   June      Summer 292456
+20 member   March     Spring 124379
+21 member   May       Spring 224469
+22 member   November  Autumn 180418
+23 member   October   Autumn 279020
+24 member   September Autumn 316459
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz
+  ggplot(data = year_2021_df_7, mapping = aes(y= season, fill = season)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made per season",caption = "Casual Vs Member",y="season", x="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "season")+ # to change the name of the legend
+    facet_grid(~usertype)
+  
+  #ggsave("plot8-Number of rides per season.png") 
+```
+
+<div>
+
+<div>
+
+![**Number of rides per season**](plot8-Number%20of%20rides%20per%20season.png "Number of rides per season"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total rides(Year_quarters)
+
+```{r,eval=FALSE}
+#----------------------------Year Quarter-------------------
+  #count the total number of rides per quarter
+  year_2021_df_7 %>% 
+    count(year_quarter)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+# Rowwise: 
+  year_quarter       n
+  <chr>          <int>
+1 Q1            308872
+2 Q2           1252572
+3 Q3           1867269
+4 Q4            872228
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each user-type per quarter
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(year_quarter)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype year_quarter      n
+  <chr>    <chr>         <int>
+1 casual   Q1            85490
+2 casual   Q2           565688
+3 casual   Q3           919590
+4 casual   Q4           285063
+5 member   Q1           223382
+6 member   Q2           686884
+7 member   Q3           947679
+8 member   Q4           587165
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each bike id per quarter
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(year_quarter)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 3
+# Groups:   bikeid [3]
+   bikeid        year_quarter       n
+   <chr>         <chr>          <int>
+ 1 classic_bike  Q1            230752
+ 2 classic_bike  Q2            883460
+ 3 classic_bike  Q3           1378121
+ 4 classic_bike  Q4            540470
+ 5 docked_bike   Q1             13776
+ 6 docked_bike   Q2             90334
+ 7 docked_bike   Q3            112858
+ 8 docked_bike   Q4             30033
+ 9 electric_bike Q1             64344
+10 electric_bike Q2            278778
+11 electric_bike Q3            376290
+12 electric_bike Q4            301725
+```
+
+```{r,eval=FALSE}
+#count the number of rides for each bike id per quarter for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,bikeid) %>% 
+    count(year_quarter) %>% 
+    print(n=22)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 21 × 4
+# Groups:   usertype, bikeid [6]
+   usertype bikeid        year_quarter      n
+   <chr>    <chr>         <chr>         <int>
+ 1 casual   classic_bike  Q1            51172
+ 2 casual   classic_bike  Q2           336560
+ 3 casual   classic_bike  Q3           608146
+ 4 casual   classic_bike  Q4           143994
+ 5 casual   docked_bike   Q1            13775
+ 6 casual   docked_bike   Q2            90334
+ 7 casual   docked_bike   Q3           112858
+ 8 casual   docked_bike   Q4            30033
+ 9 casual   electric_bike Q1            20543
+10 casual   electric_bike Q2           138794
+11 casual   electric_bike Q3           198586
+12 casual   electric_bike Q4           111036
+13 member   classic_bike  Q1           179580
+14 member   classic_bike  Q2           546900
+15 member   classic_bike  Q3           769975
+16 member   classic_bike  Q4           396476
+17 member   docked_bike   Q1                1
+18 member   electric_bike Q1            43801
+19 member   electric_bike Q2           139984
+20 member   electric_bike Q3           177704
+21 member   electric_bike Q4           190689
+```
+
+```{r,eval=FALSE}
+ 
+  #find the peak month for each quarter according to each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype,month) %>% 
+    count(year_quarter) %>% 
+    print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 4
+# Groups:   usertype, month [24]
+   usertype month     year_quarter      n
+   <chr>    <chr>     <chr>         <int>
+ 1 casual   April     Q2           103298
+ 2 casual   August    Q3           313231
+ 3 casual   December  Q4            42237
+ 4 casual   February  Q1             7547
+ 5 casual   January   Q1            13230
+ 6 casual   July      Q3           336030
+ 7 casual   June      Q2           272036
+ 8 casual   March     Q1            64713
+ 9 casual   May       Q2           190354
+10 casual   November  Q4            65961
+11 casual   October   Q4           176865
+12 casual   September Q3           270329
+13 member   April     Q2           169959
+14 member   August    Q3           320594
+15 member   December  Q4           127727
+16 member   February  Q1            32581
+17 member   January   Q1            66422
+18 member   July      Q3           310626
+19 member   June      Q2           292456
+20 member   March     Q1           124379
+21 member   May       Q2           224469
+22 member   November  Q4           180418
+23 member   October   Q4           279020
+24 member   September Q3           316459
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz
+  ggplot(data = year_2021_df_7, mapping = aes(y= year_quarter, fill = year_quarter)) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_bar()+
+    labs(title = "Number of rides made per season",caption = "Casual Vs Member",y="year quarter", x="Number of rides")+
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    scale_fill_discrete(name = "year quarter")+ # to change the name of the legend
+    facet_grid(~usertype)
+  
+  #ggsave("plot9-Number of rides per year quarter.png") 
+```
+
+<div>
+
+<div>
+
+![**Number of rides per year quarters**](plot9-Number%20of%20rides%20per%20year%20quarter.png "Number of rides per year quarters"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total rides(From_station)
+
+```{r,eval=FALSE}
+#----------------------------station-------------------
+#count the number of the rides by from_station
+ year_2021_df_7 %>% 
+    count(from_station_name) %>% 
+    print(n=836) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 836 × 2
+# Rowwise: 
+   from_station_name              n
+   <chr>                      <int>
+ 1 2112 w peterson ave          802
+ 2 63rd st beach               1244
+ 3 900 w harrison st           7685
+ 4 aberdeen st & jackson blvd 10997
+ 5 aberdeen st & monroe st    10359
+ 6 aberdeen st & randolph st   9218
+ 7 ada st & 113th st             30
+ 8 ada st & washington blvd    8414
+ 9 adler planetarium          12773
+10 albany ave & 26th st         228
+# … with 826 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#count the number of rides by from_station for each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(from_station_name) %>% 
+    print(n=1637)  
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 1,637 × 3
+# Groups:   usertype [2]
+   usertype from_station_name              n
+   <chr>    <chr>                      <int>
+ 1 casual   2112 w peterson ave          320
+ 2 casual   63rd st beach                727
+ 3 casual   900 w harrison st           2273
+ 4 casual   aberdeen st & jackson blvd  3285
+ 5 casual   aberdeen st & monroe st     3562
+ 6 casual   aberdeen st & randolph st   3598
+ 7 casual   ada st & 113th st             20
+ 8 casual   ada st & washington blvd    2807
+ 9 casual   adler planetarium           7986
+10 casual   albany ave & 26th st         127
+# … with 1,627 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#count the rides used by each type of bikes from the stations
+  year_2021_df_7 %>% 
+    group_by(bikeid) %>% 
+    count(from_station_name) %>% 
+    print(n=3000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2,193 × 3
+# Groups:   bikeid [3]
+   bikeid       from_station_name              n
+   <chr>        <chr>                      <int>
+ 1 classic_bike 2112 w peterson ave          504
+ 2 classic_bike 63rd st beach                811
+ 3 classic_bike 900 w harrison st           5688
+ 4 classic_bike aberdeen st & jackson blvd  7942
+ 5 classic_bike aberdeen st & monroe st     7461
+ 6 classic_bike aberdeen st & randolph st   6397
+ 7 classic_bike ada st & 113th st              7
+ 8 classic_bike ada st & washington blvd    6174
+ 9 classic_bike adler planetarium           8609
+10 classic_bike albany ave & 26th st         143
+# … with 2,183 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#count the rides using the timing, day and season per each user-type
+  year_2021_df_7 %>% 
+    group_by(usertype, bikeid, start_timing) %>% 
+    count(from_station_name) %>% 
+    print(n=4000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 13,700 × 5
+# Groups:   usertype, bikeid, start_timing [21]
+   usertype bikeid       start_timing from_station_name              n
+   <chr>    <chr>        <chr>        <chr>                      <int>
+ 1 casual   classic_bike Afternoon    2112 w peterson ave           61
+ 2 casual   classic_bike Afternoon    63rd st beach                175
+ 3 casual   classic_bike Afternoon    900 w harrison st            441
+ 4 casual   classic_bike Afternoon    aberdeen st & jackson blvd   739
+ 5 casual   classic_bike Afternoon    aberdeen st & monroe st      787
+ 6 casual   classic_bike Afternoon    aberdeen st & randolph st    640
+ 7 casual   classic_bike Afternoon    ada st & 113th st              3
+ 8 casual   classic_bike Afternoon    ada st & washington blvd     492
+ 9 casual   classic_bike Afternoon    adler planetarium           2296
+10 casual   classic_bike Afternoon    albany ave & 26th st          23
+# … with 13,690 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+year_2021_df_7 %>% 
+    group_by(usertype, bikeid, day_of_order) %>% 
+    count(from_station_name) %>% 
+    print(n=4000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 23,385 × 5
+# Groups:   usertype, bikeid, day_of_order [36]
+   usertype bikeid       day_of_order from_station_name                 n
+   <chr>    <chr>        <chr>        <chr>                         <int>
+ 1 casual   classic_bike Friday       2112 w peterson ave              16
+ 2 casual   classic_bike Friday       63rd st beach                    46
+ 3 casual   classic_bike Friday       900 w harrison st               192
+ 4 casual   classic_bike Friday       aberdeen st & jackson blvd      280
+ 5 casual   classic_bike Friday       aberdeen st & monroe st         325
+ 6 casual   classic_bike Friday       aberdeen st & randolph st       337
+ 7 casual   classic_bike Friday       ada st & washington blvd        276
+ 8 casual   classic_bike Friday       adler planetarium               616
+ 9 casual   classic_bike Friday       albany ave & 26th st             11
+10 casual   classic_bike Friday       albany ave & bloomingdale ave   144
+# … with 23,375 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+year_2021_df_7 %>% 
+    group_by(usertype, bikeid, season) %>% 
+    count(from_station_name) %>% 
+    print(n=4000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 13,146 × 5
+# Groups:   usertype, bikeid, season [21]
+   usertype bikeid       season from_station_name                 n
+   <chr>    <chr>        <chr>  <chr>                         <int>
+ 1 casual   classic_bike Autumn 2112 w peterson ave              53
+ 2 casual   classic_bike Autumn 63rd st beach                    81
+ 3 casual   classic_bike Autumn 900 w harrison st               488
+ 4 casual   classic_bike Autumn aberdeen st & jackson blvd      637
+ 5 casual   classic_bike Autumn aberdeen st & monroe st         512
+ 6 casual   classic_bike Autumn aberdeen st & randolph st       592
+ 7 casual   classic_bike Autumn ada st & washington blvd        502
+ 8 casual   classic_bike Autumn adler planetarium              1044
+ 9 casual   classic_bike Autumn albany ave & 26th st             19
+10 casual   classic_bike Autumn albany ave & bloomingdale ave   239
+# … with 13,136 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+#create a data set for the top 5 stations filtered per user-type
+  top_10_stations <- year_2021_df_7 %>% 
+    group_by(usertype) %>% 
+    count(from_station_name, sort= TRUE) %>% 
+    slice_head(n=5)
+str(top_10_stations)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 10 × 3
+# Groups:   usertype [2]
+  usertype        from_station_name     n
+1    casual  streeter dr & grand ave 54102
+2    casual          millennium park 26792
+3    casual    michigan ave & oak st 23576
+4    casual           shedd aquarium 20009
+5    casual    wells st & concord ln 18177
+6    member        clark st & elm st 23172
+7    member kingsbury st & kinzie st 22229
+8    member    wells st & concord ln 22189
+9    member        wells st & elm st 19627
+10   member    dearborn st & erie st 18178
+```
+
+```{r,eval=FALSE}
+#Visualization
+ ggplot(data = top_10_stations, mapping = aes(y= from_station_name,x= n, fill =from_station_name )) + 
+    #applied the mapping here an not in the geom_bar as it will be applied to the whole built-up layers 
+    #as aes()in geom_function will be only applied here (hierarchy level)
+    geom_col()+
+    labs(title = "Top 10 start points per no. of rides",caption = "Casual Vs Member",x="number of rides", y="station")+
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+    scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+    facet_grid(~usertype)
+  
+  #ggsave("plot10-Top 10 start points per no. of rides.png")
+```
+
+<div>
+
+<div>
+
+![**Top 10 start points per no. of rides**](plot10-Top%2010%20start%20points%20per%20no.%20of%20rides.png "Top 10 start points per no. of rides"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Time duration taken per each user_type under different factors
+
+#### Time duration (General)
+
+```{r,eval=FALSE}
+#-----------------------------------Time duration of the trip---------------
+    max(year_2021_df_7$time_duration)  
+    min(year_2021_df_7$time_duration) 
+    mean(year_2021_df_7$time_duration)
+    sum(year_2021_df_7$time_duration)
+    summary(year_2021_df_7$time_duration)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+max(year_2021_df_7$time_duration)  
+ 55944
+min(year_2021_df_7$time_duration) 
+1
+mean(year_2021_df_7$time_duration)
+ 20.54499
+sum(year_2021_df_7$time_duration)
+ 88362808
+summary(year_2021_df_7$time_duration)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+    1.00     7.00    12.00    20.54    21.00 55944.00 
+```
+
+#### Time duration (user-type summary)
+
+```{r,eval=FALSE}
+#summary(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype) %>%
+      summarise(first_quartile = as.numeric(quantile(time_duration,0.25)),
+                second_quartile = as.numeric(quantile(time_duration,0.50)), 
+                median_time_duration = median(time_duration),
+                mean_time_duration = mean(time_duration),
+                third_quartile = as.numeric(quantile(time_duration,0.75)),
+                IQR = as.numeric(quantile(time_duration,0.75))-as.numeric(quantile(time_duration,0.25)),
+                #allowed limits so if the values fall outside them they aren't considered as outliers
+                max_time_duration = as.numeric(quantile(time_duration,0.75)) + 1.5*(as.numeric(quantile(time_duration,0.75))-as.numeric(quantile(time_duration,0.25))),
+                min_time_duration=as.numeric(quantile(time_duration,0.25))- 1.5*(as.numeric(quantile(time_duration,0.75))-as.numeric(quantile(time_duration,0.25))),
+                max_time_duration_outlier = max(time_duration),
+                min_time_duration_outlier = min(time_duration))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2 × 11
+  usertype first_quartile second_quartile median_time_du…¹ mean_…² third…³   IQR max_t…⁴ min_t…⁵ max_t…⁶ min_t…⁷
+  <chr>             <dbl>           <dbl>            <dbl>   <dbl>   <dbl> <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
+1 casual                9              16               16    30.4      28    19    56.5   -19.5   55944       1
+2 member                6              10               10    13.1      16    10    31      -9      1496       1
+# … with abbreviated variable names ¹​median_time_duration, ²​mean_time_duration, ³​third_quartile,
+#   ⁴​max_time_duration, ⁵​min_time_duration, ⁶​max_time_duration_outlier, ⁷​min_time_duration_outlier
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, mapping = aes(x=usertype, y=time_duration, fill= usertype))+
+      geom_boxplot()+
+      stat_boxplot(geom = "errorbar")+
+      labs(title = "summary of the  Time duration", x=" User_type", y="Time_duration(min)")+
+      theme(plot.title = element_text(hjust = 0.5))+ #centering the title
+      scale_fill_discrete(name = "User_type")+
+      coord_cartesian(ylim = c(as.numeric(quantile(year_2021_df_7$time_duration,0.25))+10-1.5*(as.numeric(quantile(year_2021_df_7$time_duration,0.75))-as.numeric(quantile(year_2021_df_7$time_duration,0.25))),as.numeric(quantile(year_2021_df_7$time_duration,0.75))+40+1.5*(as.numeric(quantile(year_2021_df_7$time_duration,0.75))-as.numeric(quantile(year_2021_df_7$time_duration,0.25)))))
+    
+    #saving the plot
+    #ggsave("plot11-Statistical summary of the  Time duration of trips for each user type.png")
+    
+```
+
+<div>
+
+<div>
+
+![**Statistical summary of the Time duration of trips for each user type**](plot11-Statistical%20summary%20of%20the%20%20Time%20duration%20of%20trips%20for%20each%20user%20type.png "Statistical summary of the Time duration of trips for each user type"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total sum of time duration per user_type
+
+```{r,eval=FALSE}
+#total of duration for the whole trips for each user-type
+    year_2021_df_7 %>% 
+      group_by(usertype) %>% 
+      summarize(sum(time_duration))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2 × 2
+  usertype `sum(time_duration)`
+  <chr>                   <dbl>
+1 casual               56374447
+2 member               31988361
+```
+
+#### Total sum of time duration taken by each bike for each user_type
+
+```{r,eval=FALSE}
+#total of duration for the whole trips for each user-type for each bike
+    year_2021_df_7 %>% 
+      group_by(usertype, bikeid) %>% 
+      summarize(sum(time_duration))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 6 × 3
+# Groups:   usertype [2]
+  usertype bikeid        `sum(time_duration)`
+  <chr>    <chr>                        <dbl>
+1 casual   classic_bike              27741897
+2 casual   docked_bike               19250722
+3 casual   electric_bike              9381828
+4 member   classic_bike              25309308
+5 member   docked_bike                      3
+6 member   electric_bike              6679050
+```
+
+#### Average time duration per user_type by hour, timing, day, month, season, from and to stations
+
+#### Hour
+
+```{r,eval=FALSE}
+#hour(total)
+    year_2021_df_7 %>% 
+      group_by(start_hour) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 2
+   start_hour `mean(time_duration)`
+   <chr>                      <dbl>
+ 1 00                          24.7
+ 2 01                          28.2
+ 3 02                          33.0
+ 4 03                          32.6
+ 5 04                          30.5
+ 6 05                          13.1
+ 7 06                          13.0
+ 8 07                          13.4
+ 9 08                          14.0
+10 09                          17.2
+11 10                          21.0
+12 11                          21.9
+13 12                          22.1
+14 13                          23.0
+15 14                          23.5
+16 15                          22.6
+17 16                          20.6
+18 17                          19.4
+19 18                          19.5
+20 19                          20.0
+21 20                          21.0
+22 21                          21.4
+23 22                          22.8
+24 23                          24.2
+```
+
+```{r,eval=FALSE}
+#hour(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,start_hour) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=48)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 48 × 3
+# Groups:   usertype [2]
+   usertype start_hour `mean(time_duration)`
+   <chr>    <chr>                      <dbl>
+ 1 casual   00                          32.5
+ 2 casual   01                          36.4
+ 3 casual   02                          42.4
+ 4 casual   03                          42.8
+ 5 casual   04                          48.1
+ 6 casual   05                          20.5
+ 7 casual   06                          18.9
+ 8 casual   07                          19.4
+ 9 casual   08                          21.5
+10 casual   09                          26.6
+11 casual   10                          31.4
+12 casual   11                          32.1
+13 casual   12                          32.7
+14 casual   13                          33.2
+15 casual   14                          33.6
+16 casual   15                          32.9
+17 casual   16                          30.1
+18 casual   17                          27.9
+19 casual   18                          27.7
+20 casual   19                          28.4
+21 casual   20                          30.0
+22 casual   21                          29.9
+23 casual   22                          30.9
+24 casual   23                          32.6
+25 member   00                          12.7
+26 member   01                          14.0
+27 member   02                          13.9
+28 member   03                          13.5
+29 member   04                          12.0
+30 member   05                          10.7
+31 member   06                          11.4
+32 member   07                          11.7
+33 member   08                          11.6
+34 member   09                          12.2
+35 member   10                          13.0
+36 member   11                          13.3
+37 member   12                          13.0
+38 member   13                          13.4
+39 member   14                          13.7
+40 member   15                          13.6
+41 member   16                          13.6
+42 member   17                          13.7
+43 member   18                          13.6
+44 member   19                          13.4
+45 member   20                          13.3
+46 member   21                          12.9
+47 member   22                          13.0
+48 member   23                          12.8
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, aes(y=start_hour, x = mean(time_duration), fill= start_hour))+
+      geom_col()+
+      labs(title = "Mean duration taken per hour",caption = "Casual Vs Member",y="Hour", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "Start_hour")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot12-Average duration taken per each hour in mins.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per each hour in mins**](Plot12-Average%20duraion%20taken%20per%20each%20hour%20in%20mins.png "Average duration taken per each hour in mins"){style="border:2px solid black;" width="665"}
+
+</div>
+
+</div>
+
+#### Start_timing
+
+```{r,eval=FALSE}
+#timing(total)
+    year_2021_df_7 %>% 
+      group_by(start_timing) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  start_timing `mean(time_duration)`
+  <chr>                        <dbl>
+1 Afternoon                     22.2
+2 Evening                       19.8
+3 Morning                       17.2
+4 Night                         24.3
+```
+
+```{r,eval=FALSE}
+#timing(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,start_timing) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype start_timing `mean(time_duration)`
+  <chr>    <chr>                        <dbl>
+1 casual   Afternoon                     32.4
+2 casual   Evening                       28.3
+3 casual   Morning                       27.4
+4 casual   Night                         33.1
+5 member   Afternoon                     13.5
+6 member   Evening                       13.5
+7 member   Morning                       12.2
+8 member   Night                         13.0
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, aes(y=start_timing, x = mean(time_duration), fill= start_timing))+
+      geom_col()+
+      labs(title = "Mean duration taken through the day",caption = "Casual Vs Member",y="Start_timing", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "Start_timing")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot13-Average duration taken through the day.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken through the day**](Plot13-Average%20duration%20taken%20through%20the%20day.png "Average duration taken through the day"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Day
+
+```{r,eval=FALSE}
+#day(total)
+    year_2021_df_7 %>% 
+      group_by(day_of_order) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 7 × 2
+  day_of_order `mean(time_duration)`
+  <chr>                        <dbl>
+1 Friday                        19.8
+2 Monday                        19.2
+3 Saturday                      24.9
+4 Sunday                        26.2
+5 Thursday                      17.3
+6 Tuesday                       17.0
+7 Wednesday                     17.1
+```
+
+```{r,eval=FALSE}
+#day(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,day_of_order) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 14 × 3
+# Groups:   usertype [2]
+   usertype day_of_order `mean(time_duration)`
+   <chr>    <chr>                        <dbl>
+ 1 casual   Friday                        29.1
+ 2 casual   Monday                        30.1
+ 3 casual   Saturday                      33.0
+ 4 casual   Sunday                        35.4
+ 5 casual   Thursday                      26.1
+ 6 casual   Tuesday                       26.1
+ 7 casual   Wednesday                     26.2
+ 8 member   Friday                        12.7
+ 9 member   Monday                        12.6
+10 member   Saturday                      14.8
+11 member   Sunday                        15.1
+12 member   Thursday                      12.3
+13 member   Tuesday                       12.3
+14 member   Wednesday                     12.4
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, aes(y=day_of_order, x = mean(time_duration), fill= day_of_order))+
+      geom_col()+
+      labs(title = "Mean duration taken per the day",caption = "Casual Vs Member",y="Order_day", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "order day")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot14-Average duration taken per the day.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per the day**](Plot14-Average%20duraion%20taken%20per%20the%20day.png "Average duration taken per the day"){style="border:2px solid black;" width="673"}
+
+</div>
+
+</div>
+
+#### Month
+
+```{r,eval=FALSE}
+#month(total)
+    year_2021_df_7 %>% 
+      group_by(month) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 2
+   month     `mean(time_duration)`
+   <chr>                     <dbl>
+ 1 April                      22.0
+ 2 August                     20.0
+ 3 December                   13.8
+ 4 February                   19.7
+ 5 January                    14.0
+ 6 July                       23.0
+ 7 June                       24.8
+ 8 March                      20.7
+ 9 May                        24.6
+10 November                   13.6
+11 October                    17.0
+12 September                  19.3
+```
+
+```{r,eval=FALSE}
+#month(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,month) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 3
+# Groups:   usertype [2]
+   usertype month     `mean(time_duration)`
+   <chr>    <chr>                     <dbl>
+ 1 casual   April                      35.1
+ 2 casual   August                     26.8
+ 3 casual   December                   23.7
+ 4 casual   February                   42.8
+ 5 casual   January                    24.4
+ 6 casual   July                       31.6
+ 7 casual   June                       36.4
+ 8 casual   March                      34.6
+ 9 casual   May                        36.7
+10 casual   November                   21.1
+11 casual   October                    25.0
+12 casual   September                  26.5
+13 member   April                      14.1
+14 member   August                     13.5
+15 member   December                   10.5
+16 member   February                   14.4
+17 member   January                    11.9
+18 member   July                       13.7
+19 member   June                       14.1
+20 member   March                      13.5
+21 member   May                        14.2
+22 member   November                   10.9
+23 member   October                    12.0
+24 member   September                  13.0
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, aes(y=month, x = mean(time_duration), fill= month))+
+      geom_col()+
+      labs(title = "Mean duration taken per month",caption = "Casual Vs Member",y="month", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "month")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot15-Average duration taken per month.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per month**](Plot15-Average%20duraion%20taken%20per%20month.png "Average duration taken per month"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Season
+
+```{r,eval=FALSE}
+#season(total)
+    year_2021_df_7 %>% 
+      group_by(season) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  season `mean(time_duration)`
+  <chr>                  <dbl>
+1 Autumn                  17.4
+2 Spring                  22.9
+3 Summer                  22.5
+4 Winter                  14.7
+```
+
+```{r,eval=FALSE}
+#season(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,season) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype season `mean(time_duration)`
+  <chr>    <chr>                  <dbl>
+1 casual   Autumn                  25.3
+2 casual   Spring                  35.9
+3 casual   Summer                  31.4
+4 casual   Winter                  26.1
+5 member   Autumn                  12.2
+6 member   Spring                  14.0
+7 member   Summer                  13.7
+8 member   Winter                  11.5
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz
+    ggplot(year_2021_df_7, aes(y=season, x = mean(time_duration), fill= season))+
+      geom_col()+
+      labs(title = "Mean duration taken per season",caption = "Casual Vs Member",y="season", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "Season")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot16-Average duration taken per season.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per season**](plot16%20new "Average duration taken per season"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Year_Quarters
+
+```{r,eval=FALSE}
+#year_quarter(total)
+    year_2021_df_7 %>% 
+      group_by(year_quarter) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  year_quarter `mean(time_duration)`
+  <chr>                        <dbl>
+1 Q1                            18.9
+2 Q2                            24.1
+3 Q3                            20.8
+4 Q4                            15.4
+```
+
+```{r,eval=FALSE}
+#year_quarter(user-type)
+    year_2021_df_7 %>% 
+      group_by(usertype,year_quarter) %>% 
+      summarize(mean(time_duration)) %>% 
+      print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype year_quarter `mean(time_duration)`
+  <chr>    <chr>                        <dbl>
+1 casual   Q1                            33.8
+2 casual   Q2                            36.3
+3 casual   Q3                            28.5
+4 casual   Q4                            23.9
+5 member   Q1                            13.1
+6 member   Q2                            14.1
+7 member   Q3                            13.4
+8 member   Q4                            11.3
+```
+
+```{r,eval=FALSE}
+#viz
+    ggplot(year_2021_df_7, aes(y=year_quarter, x = mean(time_duration), fill= year_quarter))+
+      geom_col()+
+      labs(title = "Mean duration taken per year_quarter",caption = "Casual Vs Member",y="year_quarter", x="Mean Duration")+
+      theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+      scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+      scale_fill_discrete(name = "year_quarter")+ # to change the name of the legend
+      facet_grid(~usertype)
+    #ggsave("Plot17-Average duration taken per year_quarter.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per year quarter**](Plot17-Average%20duraion%20taken%20per%20year_quarter.png "Average duration taken per year quarter"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### From_Station
+
+```{r,eval=FALSE}
+#station (total)
+     year_2021_df_7 %>% 
+      group_by(from_station_name) %>% 
+      summarize(mean(time_duration)) %>% 
+       print(n=1000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 836 × 2
+   from_station_name          `mean(time_duration)`
+   <chr>                                      <dbl>
+ 1 2112 w peterson ave                         20.1
+ 2 63rd st beach                               60.4
+ 3 900 w harrison st                           14.6
+ 4 aberdeen st & jackson blvd                  14.0
+ 5 aberdeen st & monroe st                     19.1
+ 6 aberdeen st & randolph st                   18.0
+ 7 ada st & 113th st                           24.6
+ 8 ada st & washington blvd                    14.6
+ 9 adler planetarium                           34.0
+10 albany ave & 26th st                        27.2
+# … with 826 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#station (user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,from_station_name) %>% 
+       summarize(mean(time_duration)) %>% 
+       print(n=2000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 1,637 × 3
+# Groups:   usertype [2]
+   usertype from_station_name          `mean(time_duration)`
+   <chr>    <chr>                                      <dbl>
+ 1 casual   2112 w peterson ave                         23.6
+ 2 casual   63rd st beach                               84.3
+ 3 casual   900 w harrison st                           24.0
+ 4 casual   aberdeen st & jackson blvd                  21.2
+ 5 casual   aberdeen st & monroe st                     34.1
+ 6 casual   aberdeen st & randolph st                   27.3
+ 7 casual   ada st & 113th st                           34.6
+ 8 casual   ada st & washington blvd                    19.2
+ 9 casual   adler planetarium                           40.9
+10 casual   albany ave & 26th st                        32.8
+# … with 1,627 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz   
+#Create a data set with top5 start point per each user-type
+ top_10_average <-year_2021_df_7 %>% 
+   group_by(usertype, from_station_name) %>% 
+   summarise(mean(time_duration)) 
+top_10_average<-top_10_average[order(-top_10_average$`mean(time_duration)`),]#add the , to the end
+top_10_average<-top_10_average %>% 
+  group_by(usertype) %>% 
+  slice_head(n=5)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 10 × 3
+# Groups:   usertype [2]
+    usertype              from_station_name mean(time_duration)
+1    casual            throop st & 52nd st          1004.90000
+2    casual south chicago ave & elliot ave           948.47059
+3    casual      central ave & harrison st           809.73077
+4    casual            clyde ave & 87th st           744.34694
+5    casual           racine ave & 65th st           650.63158
+6    member           pulaski rd & 60th st            84.00000
+7    member         western ave & 111th st            56.33333
+8    member        michigan ave & 114th st            49.00000
+9    member           racine ave & 61st st            48.87500
+10   member           cicero ave & lake st            40.80000
+```
+
+```{r,eval=FALSE}
+#Visualization
+ggplot(top_10_average, aes(y=top_10_average$`mean(time_duration)`, x=top_10_average$from_station_name, fill = top_10_average$from_station_name))+
+  geom_col(position = position_nudge(x=0.3))+
+  labs(title = "Mean duration taken per Top10 Start points",caption = "Casual Vs Member",x="station", y="Mean Duration")+
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+  scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+  scale_fill_discrete(name = "station")+ # to change the name of the legend
+  facet_grid(~usertype)
+
+#ggsave("Plot18-Average duration taken per Top10 Start points.png")
+```
+
+<div>
+
+<div>
+
+![**Average duration taken per Top10 Start points**](Plot18-Average%20duraion%20taken%20per%20Top10%20Start%20points.png "Average duration taken per Top10 Start points"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Distance taken per each user_type under different factors
+
+#### Distance (General)
+
+```{r,eval=FALSE}
+#--------------------------Distance(meter)-------------------
+max(year_2021_df_7$distance) 
+min(year_2021_df_7$distance) 
+mean(year_2021_df_7$distance)
+sum(year_2021_df_7$distance)
+summary(year_2021_df_7$distance)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+> max(year_2021_df_7$distance) 
+[1] 20932.4
+> min(year_2021_df_7$distance) 
+[1] 0.51
+> mean(year_2021_df_7$distance)
+[1] 1510.91
+> sum(year_2021_df_7$distance)
+[1] 6498336852
+> summary(year_2021_df_7$distance)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+    0.51   497.98  1110.52  1510.91  2081.01 20932.40
+```
+
+#### Distance (user-type summary)
+
+```{r,eval=FALSE}
+#summary(user-type)
+year_2021_df_7 %>% 
+  group_by(usertype) %>%
+  summarise(first_quartile = as.numeric(quantile(distance,0.25)),
+            second_quartile = as.numeric(quantile(distance,0.50)), 
+            median_time_duration = median(distance),
+            mean_time_duration = mean(distance),
+            third_quartile = as.numeric(quantile(distance,0.75)),
+            IQR = as.numeric(quantile(distance,0.75))-as.numeric(quantile(distance,0.25)),
+            #allowed limits so if the values fall outside them they aren't considered as outliers
+            max_time_duration = as.numeric(quantile(distance,0.75)) + 1.5*(as.numeric(quantile(distance,0.75))-as.numeric(quantile(distance,0.25))),
+            min_time_duration=as.numeric(quantile(distance,0.25))- 1.5*(as.numeric(quantile(distance,0.75))-as.numeric(quantile(distance,0.25))),
+            max_time_duration_outlier = max(distance),
+            min_time_duration_outlier = min(distance))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2 × 11
+  usertype first_quartile second_quartile median_time_du…¹ mean_…² third…³   IQR max_t…⁴ min_t…⁵ max_t…⁶ min_t…⁷
+  <chr>             <dbl>           <dbl>            <dbl>   <dbl>   <dbl> <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
+1 casual             517.           1179.            1179.   1575.   2167. 1651.   4643.  -1959.  20932.    0.51
+2 member             487.           1068.            1068.   1462.   2004. 1517.   4279.  -1789.  20104.    0.51
+# … with abbreviated variable names ¹​median_time_duration, ²​mean_time_duration, ³​third_quartile,
+#   ⁴​max_time_duration, ⁵​min_time_duration, ⁶​max_time_duration_outlier, ⁷​min_time_duration_outlier
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+ggplot(year_2021_df_7, mapping = aes(x=usertype, y=distance, fill= usertype))+
+  geom_boxplot()+
+  stat_boxplot(geom = "errorbar")+
+  labs(title = "summary of the distance", x=" User_type", y="Distance(meters)")+
+  theme(plot.title = element_text(hjust = 0.5))+ #centering the title
+  scale_fill_discrete(name = "User_type")+
+  coord_cartesian(ylim = c(as.numeric(quantile(year_2021_df_7$distance,0.25))+10-1.5*(as.numeric(quantile(year_2021_df_7$distance,0.75))-as.numeric(quantile(year_2021_df_7$distance,0.25))),as.numeric(quantile(year_2021_df_7$distance,0.75))+40+1.5*(as.numeric(quantile(year_2021_df_7$distance,0.75))-as.numeric(quantile(year_2021_df_7$distance,0.25)))))
+
+#saving the plot
+#ggsave("plot19-Statistical summary of the distance of trips for each user type.png")
+
+```
+
+<div>
+
+<div>
+
+![**Statistical summary of the distance of trips for each user type**](plot19-Statistical%20summary%20of%20the%20distance%20of%20trips%20for%20each%20user%20type.png "Statistical summary of the distance of trips for each user type"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Total sum of distance per user_type
+
+```{r,eval=FALSE}
+#total of distance for the whole trips for each user-type
+     year_2021_df_7 %>% 
+       group_by(usertype) %>% 
+       summarize(sum(distance))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 2 × 2
+  usertype `sum(distance)`
+  <chr>              <dbl>
+1 casual       2923315033.
+2 member       3575021819.
+```
+
+#### Total sum of distance taken by each bike for each user_type
+
+```{r, eval=FALSE}
+#total of distance for the whole trips for each user-type for each bike
+     year_2021_df_7 %>% 
+       group_by(usertype, bikeid) %>% 
+       summarize(sum(distance))
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 6 × 3
+# Groups:   usertype [2]
+  usertype bikeid        `sum(distance)`
+  <chr>    <chr>                   <dbl>
+1 casual   classic_bike     1769721273. 
+2 casual   docked_bike       390299731. 
+3 casual   electric_bike     763294029. 
+4 member   classic_bike     2654930927. 
+5 member   docked_bike              65.5
+6 member   electric_bike     920090827.
+```
+
+#### Average distance per user_type by hour, timing, day, month, season, from and to stations
+
+#### Hour
+
+```{r,eval=FALSE}
+#hour(total)
+     year_2021_df_7 %>% 
+       group_by(start_hour) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 2
+   start_hour `mean(distance)`
+   <chr>                 <dbl>
+ 1 00                    1468.
+ 2 01                    1491.
+ 3 02                    1534.
+ 4 03                    1499.
+ 5 04                    1535.
+ 6 05                    1592.
+ 7 06                    1584.
+ 8 07                    1551.
+ 9 08                    1476.
+10 09                    1463.
+11 10                    1492.
+12 11                    1500.
+13 12                    1478.
+14 13                    1501.
+15 14                    1520.
+16 15                    1540.
+17 16                    1558.
+18 17                    1553.
+19 18                    1518.
+20 19                    1473.
+21 20                    1450.
+22 21                    1460.
+23 22                    1503.
+24 23                    1509.
+```
+
+```{r,eval=FALSE}
+#hour(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,start_hour) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=48)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 48 × 3
+# Groups:   usertype [2]
+   usertype start_hour `mean(distance)`
+   <chr>    <chr>                 <dbl>
+ 1 casual   00                    1511.
+ 2 casual   01                    1543.
+ 3 casual   02                    1622.
+ 4 casual   03                    1608.
+ 5 casual   04                    1613.
+ 6 casual   05                    1660.
+ 7 casual   06                    1584.
+ 8 casual   07                    1575.
+ 9 casual   08                    1522.
+10 casual   09                    1549.
+11 casual   10                    1577.
+12 casual   11                    1608.
+13 casual   12                    1596.
+14 casual   13                    1598.
+15 casual   14                    1589.
+16 casual   15                    1597.
+17 casual   16                    1610.
+18 casual   17                    1616.
+19 casual   18                    1587.
+20 casual   19                    1533.
+21 casual   20                    1495.
+22 casual   21                    1491.
+23 casual   22                    1533.
+24 casual   23                    1539.
+25 member   00                    1402.
+26 member   01                    1400.
+27 member   02                    1352.
+28 member   03                    1292.
+29 member   04                    1453.
+30 member   05                    1570.
+31 member   06                    1584.
+32 member   07                    1544.
+33 member   08                    1462.
+34 member   09                    1417.
+35 member   10                    1427.
+36 member   11                    1409.
+37 member   12                    1376.
+38 member   13                    1411.
+39 member   14                    1454.
+40 member   15                    1490.
+41 member   16                    1520.
+42 member   17                    1510.
+43 member   18                    1468.
+44 member   19                    1426.
+45 member   20                    1411.
+46 member   21                    1430.
+47 member   22                    1466.
+48 member   23                    1469.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+     ggplot(year_2021_df_7, aes(y=start_hour, x = mean(distance), fill= start_hour))+
+       geom_col()+
+       labs(title = "Mean distance taken per hour",caption = "Casual Vs Member",y="Hour", x="Mean Distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "Start_hour")+ # to change the name of the legend
+       facet_grid(~usertype)
+     
+     #ggsave("Plot20-Average distance taken per each hour in meters.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per each hour in meters**](Plot20-Average%20distance%20taken%20per%20each%20hour%20in%20meters.png "Average distance taken per each hour in meters"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Start_timing
+
+```{r,eval=FALSE}
+#timing(total)
+     year_2021_df_7 %>% 
+       group_by(start_timing) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  start_timing `mean(distance)`
+  <chr>                   <dbl>
+1 Afternoon               1522.
+2 Evening                 1510.
+3 Morning                 1506.
+4 Night                   1489.
+```
+
+```{r,eval=FALSE}
+#timing(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,start_timing) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype start_timing `mean(distance)`
+  <chr>    <chr>                   <dbl>
+1 casual   Afternoon               1598.
+2 casual   Evening                 1570.
+3 casual   Morning                 1576.
+4 casual   Night                   1531.
+5 member   Afternoon               1457.
+6 member   Evening                 1466.
+7 member   Morning                 1472.
+8 member   Night                   1435.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+     ggplot(year_2021_df_7, aes(y=start_timing, x = mean(distance), fill= start_timing))+
+       geom_col()+
+       labs(title = "Mean distance taken through the day",caption = "Casual Vs Member",y="Start_timing", x="Mean distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "Start_timing")+ # to change the name of the legend
+       facet_grid(~usertype)
+     #ggsave("Plot21-Average distance taken through the day.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken through the day**](Plot21-Average%20distance%20taken%20through%20the%20day.png "Average distance taken through the day"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Day
+
+```{r,eval=FALSE}
+#day(total)
+     year_2021_df_7 %>% 
+       group_by(day_of_order) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 7 × 2
+  day_of_order `mean(distance)`
+  <chr>                   <dbl>
+1 Friday                  1495.
+2 Monday                  1461.
+3 Saturday                1580.
+4 Sunday                  1567.
+5 Thursday                1482.
+6 Tuesday                 1471.
+7 Wednesday               1487.
+```
+
+```{r,eval=FALSE}
+#day(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,day_of_order) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 14 × 3
+# Groups:   usertype [2]
+   usertype day_of_order `mean(distance)`
+   <chr>    <chr>                   <dbl>
+ 1 casual   Friday                  1560.
+ 2 casual   Monday                  1507.
+ 3 casual   Saturday                1631.
+ 4 casual   Sunday                  1613.
+ 5 casual   Thursday                1549.
+ 6 casual   Tuesday                 1527.
+ 7 casual   Wednesday               1552.
+ 8 member   Friday                  1446.
+ 9 member   Monday                  1434.
+10 member   Saturday                1516.
+11 member   Sunday                  1511.
+12 member   Thursday                1444.
+13 member   Tuesday                 1442.
+14 member   Wednesday               1453.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz
+     ggplot(year_2021_df_7, aes(y=day_of_order, x = mean(distance), fill= day_of_order))+
+       geom_col()+
+       labs(title = "Mean distance taken per day",caption = "Casual Vs Member",y="Order_day", x="Mean distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "order_day")+ # to change the name of the legend
+       facet_grid(~usertype)
+     #ggsave("Plot22-Average distance taken per the day.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per the day**](Plot22-Average%20distance%20taken%20per%20the%20day.png "Average distance taken per the day"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Month
+
+```{r,eval=FALSE}
+#month(total)
+     year_2021_df_7 %>% 
+       group_by(month) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 12 × 2
+   month     `mean(distance)`
+   <chr>                <dbl>
+ 1 April                1502.
+ 2 August               1552.
+ 3 December             1354.
+ 4 February             1410.
+ 5 January              1374.
+ 6 July                 1563.
+ 7 June                 1557.
+ 8 March                1486.
+ 9 May                  1532.
+10 November             1367.
+11 October              1449.
+12 September            1541.
+```
+
+```{r,eval=FALSE}
+#month(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,month) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24) 
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 24 × 3
+# Groups:   usertype [2]
+   usertype month     `mean(distance)`
+   <chr>    <chr>                <dbl>
+ 1 casual   April                1532.
+ 2 casual   August               1613.
+ 3 casual   December             1402.
+ 4 casual   February             1474.
+ 5 casual   January              1409.
+ 6 casual   July                 1602.
+ 7 casual   June                 1593.
+ 8 casual   March                1522.
+ 9 casual   May                  1557.
+10 casual   November             1444.
+11 casual   October              1532.
+12 casual   September            1621.
+13 member   April                1484.
+14 member   August               1493.
+15 member   December             1339.
+16 member   February             1395.
+17 member   January              1367.
+18 member   July                 1521.
+19 member   June                 1524.
+20 member   March                1467.
+21 member   May                  1511.
+22 member   November             1338.
+23 member   October              1396.
+24 member   September            1472.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz    
+     ggplot(year_2021_df_7, aes(y=month, x = mean(distance), fill= month))+
+       geom_col()+
+       labs(title = "Mean distance taken through the day",caption = "Casual Vs Member",y="month", x="Mean distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "month")+ # to change the name of the legend
+       facet_grid(~usertype)
+     ggsave("Plot23-Average distance taken per month.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per month**](Plot22-Average%20distance%20taken%20per%20the%20day.png "Average distance taken per month."){style="border:2px solid black;" width="659"}
+
+</div>
+
+</div>
+
+#### Season
+
+```{r,eval=FALSE}
+#season(total)
+     year_2021_df_7 %>% 
+       group_by(season) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  season `mean(distance)`
+  <chr>             <dbl>
+1 Autumn            1475.
+2 Spring            1513.
+3 Summer            1558.
+4 Winter            1367.
+```
+
+```{r,eval=FALSE}
+#season(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,season) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype season `mean(distance)`
+  <chr>    <chr>             <dbl>
+1 casual   Autumn            1568.
+2 casual   Spring            1543.
+3 casual   Summer            1603.
+4 casual   Winter            1412.
+5 member   Autumn            1414.
+6 member   Spring            1492.
+7 member   Summer            1513.
+8 member   Winter            1355.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+ #viz    
+     ggplot(year_2021_df_7, aes(y=season, x = mean(distance), fill= season))+
+       geom_col()+
+       labs(title = "Mean distance taken per season",caption = "Casual Vs Member",y="season", x="Mean distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "season")+ # to change the name of the legend
+       facet_grid(~usertype)
+     #ggsave("Plot24-Average distance taken per season.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per season**](Plot24-Average%20distance%20taken%20per%20season.png "Average distance taken per season"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Year_Quarters
+
+```{r,eval=FALSE}
+#year_quarter(total)
+     year_2021_df_7 %>% 
+       group_by(year_quarter) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 4 × 2
+  year_quarter `mean(distance)`
+  <chr>                   <dbl>
+1 Q1                      1447.
+2 Q2                      1537.
+3 Q3                      1552.
+4 Q4                      1407.
+```
+
+```{r,eval=FALSE}
+#year_quarter(user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,year_quarter) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=24)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 8 × 3
+# Groups:   usertype [2]
+  usertype year_quarter `mean(distance)`
+  <chr>    <chr>                   <dbl>
+1 casual   Q1                      1500.
+2 casual   Q2                      1570.
+3 casual   Q3                      1611.
+4 casual   Q4                      1492.
+5 member   Q1                      1427.
+6 member   Q2                      1510.
+7 member   Q3                      1495.
+8 member   Q4                      1366.
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz    
+     ggplot(year_2021_df_7, aes(y=year_quarter, x = mean(distance), fill= year_quarter))+
+       geom_col()+
+       labs(title = "Mean distance taken per year_quarter",caption = "Casual Vs Member",y="year_quarter", x="Mean distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_x_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "year_quarter")+ # to change the name of the legend
+       facet_grid(~usertype)
+     #ggsave("Plot25-Average distance taken per year_quarter.png")
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per year quarter**](Plot25-Average%20distance%20taken%20per%20year_quarter.png "Average distance taken per year quarter"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### From_Station
+
+```{r,eval=FALSE}
+#station (total)
+     year_2021_df_7 %>% 
+       group_by(from_station_name) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=1000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 836 × 2
+   from_station_name          `mean(distance)`
+   <chr>                                 <dbl>
+ 1 2112 w peterson ave                   1848.
+ 2 63rd st beach                         2548.
+ 3 900 w harrison st                     1351.
+ 4 aberdeen st & jackson blvd            1490.
+ 5 aberdeen st & monroe st               1984.
+ 6 aberdeen st & randolph st             1724.
+ 7 ada st & 113th st                     1256.
+ 8 ada st & washington blvd              2060.
+ 9 adler planetarium                     1954.
+10 albany ave & 26th st                  3469.
+# … with 826 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+```{r,eval=FALSE}
+#station (user-type)
+     year_2021_df_7 %>% 
+       group_by(usertype,from_station_name) %>% 
+       summarize(mean(distance)) %>% 
+       print(n=2000)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 1,637 × 3
+# Groups:   usertype [2]
+   usertype from_station_name          `mean(distance)`
+   <chr>    <chr>                                 <dbl>
+ 1 casual   2112 w peterson ave                   2028.
+ 2 casual   63rd st beach                         2395.
+ 3 casual   900 w harrison st                     1494.
+ 4 casual   aberdeen st & jackson blvd            1659.
+ 5 casual   aberdeen st & monroe st               2237.
+ 6 casual   aberdeen st & randolph st             1985.
+ 7 casual   ada st & 113th st                     1882.
+ 8 casual   ada st & washington blvd              2142.
+ 9 casual   adler planetarium                     1889.
+10 casual   albany ave & 26th st                  3281.
+# … with 1,627 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+##### Visualization
+
+```{r,eval=FALSE}
+#viz   
+#Create a data set with top5 start point per each user-type
+     top_10_avg_dist <-year_2021_df_7 %>% 
+       group_by(usertype, from_station_name) %>% 
+       summarise(mean(distance)) 
+     top_10_avg_dist<-top_10_avg_dist[order(-top_10_avg_dist$`mean(distance)`),]#add the , to the end
+     top_10_avg_dist<-top_10_avg_dist %>% 
+       group_by(usertype) %>% 
+       slice_head(n=5)
+```
+
+##### Results
+
+```{r, eval=FALSE}
+# A tibble: 10 × 3
+# Groups:   usertype [2]
+   usertype            from_station_name mean(distance)
+1    casual          tripp ave & 15th st      10721.571
+2    casual       komensky ave & 31st st       8933.972
+3    casual             nordica & medill       7762.697
+4    casual narragansett ave & school st       7512.171
+5    casual     w 103rd st & s avers ave       7466.370
+6    member major ave & bloomingdale ave      13762.520
+7    member             sayre & diversey      13690.804
+8    member      francisco ave & 47th st      12500.280
+9    member        long ave & belden ave      11327.120
+10   member     central ave & madison st      11199.833
+```
+
+```{r,eval=FALSE}
+#Visualization
+ggplot(top_10_average, aes(y=top_10_avg_dist$`mean(distance)`, x=top_10_avg_dist$from_station_name, fill = top_10_avg_dist$from_station_name))+
+       geom_col(position = position_nudge(x=0.3))+
+       labs(title = "Mean distance taken per Top10 Start points",caption = "Casual Vs Member",x="station", y="Mean Distance")+
+       theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5))+ #centering the title
+       scale_y_continuous(labels = scales :: comma)+ #removing the E expression
+       scale_fill_discrete(name = "station")+ # to change the name of the legend
+       facet_grid(~usertype)
+     
+     #ggsave("Plot26-Average distance taken per Top10 Start points.png")
+     
+```
+
+<div>
+
+<div>
+
+![**Average distance taken per Top10 Start points**](Plot26-Average%20distance%20taken%20per%20Top10%20Start%20points.png "Average distance taken per Top10 Start points"){style="border:2px solid black;"}
+
+</div>
+
+</div>
+
+#### Focused results on the user-types' behavior
+
+This excel sheet contains a summarized analysis of casual and member behavior through different times, hours, days, months, seasons, and year quarters. It also shows the different stations, most trips started and ended, most taken routes, and the type of the bikes used. It also has the average duration and distance taken at different states. This worksheet can be observed through this link: [Summary Analysis of the behavior between casual and member worksheet](https://docs.google.com/spreadsheets/d/1_pUIYTEovlK3QhIDuw2c_U5N1GEPjFAk/edit?usp=sharing&ouid=104718905829386398715&rtpof=true&sd=true "Summary Analysis of the behavior between casual and member worksheet")
+
+#### Dashboard of the data-set to test different factors
+
+This dashboard was founded to summarize and integrate the analysis. Also, It is working a real time dashboard that can assist i further analysis. It contains both the count of the trips, and average time duration and distance. It can be observed through this link:[Tableau Dashboards](https://public.tableau.com/app/profile/sara.samy/viz/Cyclistbikeshareapp2021/Countofthetripsthroughdifferentfactors#1 "Tableau Dashboards") or by clicking on that image below.
+
+<div>
+
+<div>
+
+[![Count of the trips through different factors](Count%20of%20the%20trips%20through%20different%20factors.png){style="border:2px solid black;"}](https://public.tableau.com/app/profile/sara.samy/viz/Cyclistbikeshareapp2021/Countofthetripsthroughdifferentfactors#1)
+
+</div>
+
+</div>
+
+<div>
+
+<div>
+
+[![TD and dist.png](TD%20and%20dist.png){style="border:2px solid black;"}](https://public.tableau.com/app/profile/sara.samy/viz/Cyclistbikeshareapp2021/Countofthetripsthroughdifferentfactors#1)
+
+</div>
+
+</div>
+
+#### Observations on the different users' behavior
+
+1.  Casual users are **43.15%** from the total number of users.
+
+2.  Classic bike considered to be the most used bike for both users (**70.51%**), then electric and then docked bikes.
+
+3.  **5.74%** of casual users used docked bikes, while **10.9%** used electric ones.
+
+4.  Peak hours are **16, 17, 18** for total users.
+
+5.  Afternoon(**33.85%**) is considered the most requested trips order time.
+
+6.  **Sat, Sun, Fri** are peak days for casuals while **Wed, Tues, Thurs** are the ones for members.
+
+7.  Peak month in general is **July**, **Summer** is the peak season, and **Q3** is the highest quarter of trip count.
+
+8.  Start point is **Streeter Dr & Grand Ave** for casual users(**42.97%** of casuals) while **Clark St & Elm St**(**24.89%** of members) is the most used start station for the members.
+
+9.  Stop point is **Streeter Dr & Grand Ave** for casual users(**40%** of casuals) while **Clark St & Elm St**(**29.3%** of members) is the most used start station for the members.
+
+10. Most taken routes are **"Streeter Dr & Grand Ave To Millennium Park"**for casuals (**10.46%**) and **"Ellis Ave & 55th St&&Ellis Ave & 60th St"** for members(**26.67%**).
+
+11. Average duration is **30 minutes** for casuals while **13 minutes** for members.
+
+12. Average distance is **1575 meters** for casual while **1462 meters** for members.
+
+13. Classic bikes have the largest distance and time duration.
+
+14. Top hours from the longest duration perspective are **04** for casuals(48.13 minutes), and **01** for members(14 minutes).
+
+15. Top hours from the longest distance perspective are **05** for casuals(1.03 mile), and **01** for members(0.98 mile).
+
+16. Top routes from the longest duration perspective are "**Millennium Park To Streeter Dr & Grand Ave**" for casuals(**53.1 minutes**), and "**Shedd Aquarium To Streeter Dr & Grand Ave**" for members(**21.63 minutes**).
+
+17. Top routes from the longest distance perspective are "**Millennium Park To Streeter Dr & Grand Ave**" for both users(**0.83 mile**).
+
+#### Deep observations on casuals' behavior
+
+1.  At mornings, **18.33%** Of the casuals, **11** is considered the peak hour, Average duration is **27** minutes and distance is **1576** meters, classic bike is the most used, stop and start stations are **Streeter Dr & Grand Ave**, and the top most taken route is **"DuSable Lake Shore Dr & Monroe St To Streeter Dr & Grand"**.
+
+2.  At Afternoons(highest timing through the day), **%36.30** Of the casuals, **16** is considered the peak hour, Average duration is **32** minutes and distance is **1598** meters, classic bike is the most used, stop and start stations are **Streeter Dr & Grand Ave**, and the top most taken route is **"Shedd Aquarium To Streeter Dr & Grand Ave"**.
+
+3.  At Evenings, **29.57%** Of the casuals, **17** is considered the peak hour, Average duration is **28** minutes and distance is **1570** meters, classic bike is the most used, stop and start stations are **Streeter Dr & Grand Ave**, and the top most taken route is **"Streeter Dr & Grand Ave To Millennium Park"**.
+
+4.  At Nights, **15.80%** Of the casuals, **21** is considered the peak hour, Average duration is **33** minutes and distance is **1531** meters, classic bike is the most used, Docked bikes had the most usage percent, stop and start stations are **Streeter Dr & Grand Ave** and **Wells St & Concord Ln** simultaneously, and the top most taken route is **"Ellis Ave & 55th St&&Ellis Ave & 60th St"**.
+
+5.  Weekdays are all on average of **10-11%** of casuals but become higher on Fridays **14.37%**, while weekends are almost double the weekdays percentage, the highest on Saturdays.
+
+6.  Winter is the least season from the number of rides. December is considered to be the peak month. The top most taken route is **"DuSable Lake Shore Dr & Monroe St To Streeter Dr & Grand"**.
+
+7.  Summer is the top season from the number of rides. July is considered to be the peak month. The top most taken route is **"Lake Shore Dr & Monroe St To Streeter Dr & Grand Ave"**.
+
+8.  Spring is the second-placed season from the number of rides. May is considered to be the peak month. The top most taken route is **"Lake Shore Dr & Monroe St To Streeter Dr & Grand Ave"**.
+
+9.  Fall is the third-placed season from the number of rides. September is considered to be the peak month. The top most taken route is **"DuSable Lake Shore Dr & Monroe St To Streeter Dr & Grand Ave"**.
+
+10. Docked bikes record a percentage of usage higher than that of the members.
+
+#### Summary of the study
+
+1.  Afternoon time is the most order timing. 16 is considered the peak hour.
+
+2.  Classic bike is the most used type, followed by the electrics and then the docked bikes.
+
+3.  **"Streeter Dr & Grand Ave To Millennium Park"** is the most taken route.
+
+4.  Winter(Dec, Jan, Feb), the count decreases gradually.
+
+5.  Summer, July is the peak month. Fall, September is the highest month.
+
+6.  Spring(March To May), it increases gradually more the winters, till the count reaches its ultimate in the summers.
+
+7.  Weekends (Saturdays) are the busiest days, and Fridays accordingly.
+
+#### Conclusions {style="border-style: solid; border-width: thin; border-color: #FFFFFF;"}
+
+-   Number of classic bikes should increase specially in Summer at July.
+
+-   More bikes could be added at Streeter Dr & Grand Ave station.
+
+-   Afternoons and Evenings also needed more bikes to avoid any lack of service.
+
+-   Docked bikes should increase.
+
+-   Lake and park streets should be considered.
